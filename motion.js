@@ -86,13 +86,29 @@ function seekClip(video, seconds) {
     try{video.currentTime=seconds;}catch(error){done(error);}
   });
 }
-function waitClip(video) {
+function waitClip(video,onSlow) {
   return new Promise((resolve,reject)=>{
-    const timer=setTimeout(()=>done(new Error('clip timeout')),10000);
-    function done(error){clearTimeout(timer);video.removeEventListener('loadeddata',ok);video.removeEventListener('error',bad);error?reject(error):resolve();}
+    // The result page offers a retry while the original request can still finish.
+    // Background exports time out only when no further data arrives.
+    let idle;
+    const hint=onSlow?setTimeout(onSlow,10000):0;
+    function progress(){
+      if(onSlow)return;
+      clearTimeout(idle);idle=setTimeout(()=>done(new Error('clip timeout')),60000);
+    }
+    function cleared(){if(!video.hasAttribute('src'))bad();}
+    function done(error){
+      clearTimeout(hint);clearTimeout(idle);
+      video.removeEventListener('loadeddata',ok);video.removeEventListener('error',bad);
+      video.removeEventListener('progress',progress);video.removeEventListener('emptied',cleared);
+      error?reject(error):resolve();
+    }
     function ok(){done();}function bad(){done(new Error('clip unavailable'));}
     video.addEventListener('loadeddata',ok);video.addEventListener('error',bad);
-    if(video.readyState>=2)ok();else video.load();
+    video.addEventListener('progress',progress);video.addEventListener('emptied',cleared);
+    if(video.readyState>=2){ok();return;}
+    progress();
+    if(video.networkState!==video.NETWORK_LOADING)video.load();
   });
 }
 let dialogRun=0,dialogBlob='';

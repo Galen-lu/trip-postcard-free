@@ -117,7 +117,13 @@ async function openFilm(moment){
   // The published HD image can also be opened if a device cannot decode H.264.
   get('hdMake').disabled=!publishedCard(shot);
   try{
-    await waitClip(v);if(run!==filmRun)return;
+    await waitClip(v,()=>{
+      if(run!==filmRun)return;
+      get('filmStatus').textContent='画面仍在加载，可以先看答题解读。';
+      get('retryFilm').hidden=false;
+    });
+    if(run!==filmRun)return;
+    get('retryFilm').hidden=true;
     get('filmCanvas').hidden=false;get('filmPlay').hidden=false;
     get('filmCanvas').setAttribute('aria-label',shot.role.name+'。'+shot.caption);
     get('filmPosition').textContent=shot.title;get('filmStatus').textContent='';
@@ -173,7 +179,7 @@ async function exportFilm(hd){
 }
 
 function inviteURL(key,type) {
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=11&play='+encodeURIComponent(key)+'#friend='+type;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=11.1&play='+encodeURIComponent(key)+'#friend='+type;
 }
 
 async function copyInvite() {
