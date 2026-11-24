@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#153e38">
-<title>旅途邮局 · 选一个趣味测试</title><meta name="robots" content="noindex,nofollow"><meta name="description" content="旅行搭子、群聊人格、街角小店，任选主题领取你的彩色结果明信片。">
+<title>旅途邮局 · 选一个趣味测试</title><meta name="robots" content="noindex,nofollow"><meta name="description" content="爱情表达、缘分相遇、趣味运势签、旅行搭子、群聊人格、街角小店，任选主题领取你的插画明信片。">
 <style>
 *{box-sizing:border-box} :root{color-scheme:light;font-family:"Microsoft YaHei",system-ui,sans-serif;color:#183e38;background:#f5f2e8}body{margin:0}button,a{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #bd532e;outline-offset:4px}[hidden]{display:none!important}
 .shell{max-width:1080px;margin:auto;padding:0 32px}.mast{display:flex;align-items:center;gap:10px;height:80px;border-bottom:2px solid #214e45;font-weight:800;letter-spacing:.14em}.mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#1f5146;color:#fff9dd;font-family:Georgia,serif;font-style:italic}.mono{font:600 .78rem/1.4 Consolas,monospace;letter-spacing:.12em}.mast .mono{margin-left:auto;color:#48675b}.hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:6%;padding:56px 0}.hero h1{font:800 clamp(3rem,6.4vw,5.75rem)/1.12 "STKaiti","KaiTi","SimSun",serif;letter-spacing:-.04em;margin:22px 0}.tag{display:inline-block;border-bottom:2px solid #ad4e2b;color:#974023;padding:0 0 5px}.hero p,.blurb{font-size:1.06rem;color:#475c54;line-height:1.85;max-width:36em}.action{background:#214e45;border:1px solid #214e45;color:#fffbef;border-radius:4px;padding:15px 30px;font-weight:750;min-height:48px}.action:hover{background:#113c34}.sub{background:transparent;color:#214e45;border:1px solid #809188}.sub:hover{background:#e5e9df}.hero .action{margin-top:12px;min-width:200px}.post{background:#fffdf5;border:1px solid #b9b8a5;box-shadow:5px 7px 0 #d5d7c7;padding:12px;transform:rotate(1.6deg);margin:8px}.post canvas{width:100%;display:block}.post figcaption{display:flex;align-items:center;justify-content:space-between;padding:13px 2px 1px;font-size:.88rem}.line{max-width:1080px;border-top:1px solid #a0ada0;padding:16px 0 28px;color:#5c6b62;font-size:.84rem}.quiz,.result{max-width:680px;margin:34px auto 42px}.quizhead{display:flex;justify-content:space-between;align-items:center;color:#566a60}.meter{height:5px;background:#d6dccf;margin:12px 0 28px}.meter span{display:block;height:100%;background:#ba532c}.quiz h2,.result h2{font:750 clamp(1.6rem,4vw,2.65rem)/1.45 "STKaiti","KaiTi","SimSun",serif;margin:12px 0 22px}.options{display:grid;gap:10px}.option{display:flex;gap:15px;align-items:center;text-align:left;border:1px solid #a8b4a7;background:#fffcf3;color:#21453b;border-radius:4px;padding:14px;line-height:1.55}.option:hover{border-color:#21453b}.option[aria-pressed=true]{background:#e0eadb;border:2px solid #225446;padding:13px}.letter{flex:none;font:600 1rem Georgia,serif;border:1px solid #b6c0b3;border-radius:50%;width:29px;height:29px;display:grid;place-items:center}.quiznav{display:flex;justify-content:space-between;align-items:center;margin-top:22px}.back{padding:12px;background:none;color:#30574c;border:0;text-decoration:underline;text-underline-offset:4px}button:disabled{cursor:default;opacity:.45}.result img{display:block;width:100%;height:auto;margin:18px 0}.proof{border-left:3px solid #bc663d;padding:0 0 0 14px;line-height:1.75}.buttons{display:flex;gap:12px;flex-wrap:wrap}.buttons a{text-decoration:none}.hint{font-size:.85rem;color:#53665a}.result h2{margin-bottom:0}.result p{line-height:1.8}
@@ -19,7 +19,7 @@
 <section id="result" class="result" hidden><span class="tag" id="resultLabel"></span><h2 tabindex="-1" id="role"></h2><p id="reading"></p><img id="card" alt="旅行搭子结果明信片"><p id="artStatus" class="hint" role="status" hidden>插画暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><p class="proof" id="proof"></p><p id="tip"></p><div class="buttons"><a id="save" class="action" download>保存结果卡</a><button id="restart" class="action sub">再测一次</button><button id="otherTheme" class="back">换个主题</button></div><p class="hint">手机也可以长按上方图片保存。</p></section>
 <section id="paperPanel" class="offline-panel" hidden><h2 tabindex="-1" id="paperTitle">微信图片版</h2><p>把整张图发给朋友，在微信里放大即可答题，图底有结果。</p><nav><a id="paperSave" class="action" download="旅行搭子-微信答题长图.png">保存答题图</a><button id="paperClose" class="back">回到首页</button></nav><img id="paperImage" alt="十道旅行选择题，附计分说明与四种搭子结果"></section>
 <footer class="line">旅途邮局 · 仅供娱乐，请按当下的真实想法作答。</footer></main>
-<script src="themes.js?v=2"></script>
+<script src="themes.js?v=3"></script>
 <script>
 const travelQuestions = [
  ['出发前夜','群里只定了目的地，明早就要出发。你先做什么？','把车次、住址和集合时间放进群公告','找一站没去过的小镇，提议顺路下车','问清谁容易晕车，给对方留个靠前的位置','拍下大家乱成一团的行李，做相册封面'],
@@ -43,6 +43,7 @@ const get=id=>document.getElementById(id);
 let answers=[],page=0;
 
 const themes = [
+ loveTheme, encounterTheme, fortuneTheme,
  {key:'travel',title:'你是哪种旅行搭子？',label:'旅行搭子',intro:'离入住还有两小时，你先寄存行李，还是循着葱油香拐进小巷？',cover:3,questions:travelQuestions,roles:travelRoles},
  chatTheme, shopTheme
 ];
@@ -101,7 +102,7 @@ async function makeCard(type) {
    const c = canvas.getContext('2d');
    c.fillStyle = '#fff3d8'; c.fillRect(0,0,800,1110);
    c.fillStyle = role.ink;
-   c.font = 'bold 26px sans-serif'; c.fillText('旅途邮局   /   '+item.label,38,55);
+   c.font = 'bold 26px sans-serif'; c.fillText('旅途邮局   /   '+item.label+(item.key==='fortune'?'   ·   仅供娱乐':''),38,55);
    c.font = 'bold 75px serif'; c.fillText(role.name,32,148,736);
    c.drawImage(image, 0,179,800,800);
    c.fillStyle = role.ink; c.fillRect(0,979,800,131);
@@ -148,7 +149,7 @@ function makePaperGame() {
    if (line) appendLine();
  }
  y = 50;
- write('旅途邮局     /     好友免费体验', 26, 700, '#ffe7af');
+ write('旅途邮局     /     '+theme.label+(theme.key==='fortune'?'   ·   仅供娱乐':''), 26, 700, '#ffe7af');
  y += 16;
  write(theme.title, 66, 800, '#fff9ed');
  y += 9;
@@ -172,7 +173,7 @@ function makePaperGame() {
  y += 18;
  write('打开你的结果明信片', 54, 750, '#fff9ed');
  y += 8;
- write('出现最多的字母就是你的身份。如并列，从第 10 题倒着看，最先遇到的并列字母获胜。', 31, 500, '#f5e7c9');
+ write('出现最多的字母对应你的结果。如并列，从第 10 题倒着看，取最先遇到的并列字母。', 31, 500, '#f5e7c9');
  y += 21;
  roles.forEach((role,i) => {
    write('ABCD'[i] + '    ' + role.name, 40, 700, '#ffcf81');
