@@ -115,7 +115,7 @@ async function syncDemo(){
   const canvas=get('springDemo');
   if(get('blessing').hidden||get('wishEditor').hidden||document.hidden)return;
   const s=wishStateNow();canvas.style.visibility='hidden';
-  try{s.still=await loadArt(springPhoto(s.choice.key,true));}catch{return;}
+  try{s.still=await loadArt(springPhoto(s.choice.key));}catch{return;}
   if(run!==demoRun)return;
   canvas.dataset.scene=s.choice.key;canvas.style.visibility='visible';
   const begin=performance.now();let last=-100;
