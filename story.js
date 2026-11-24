@@ -1,11 +1,11 @@
 // The public invitation carries a theme and one role. Answers stay on the device.
 const duetPrompts = {
-  love: ['如果下班后只剩半小时，你想怎样一起过？', '把喜欢说出口', '给对方留一盏灯', '先把小事照顾好', '约一次意外的出走'],
-  encounter: ['把你们第一次说话的那一幕，分别讲给对方听？', '从偶遇里找话头', '和人并肩走一段', '从共同爱好聊起', '把新朋友拉进圆桌'],
+  love: ['如果下班后只剩半小时，你想怎样一起过？', '把喜欢说出口', '给对方留一盏灯', '先把小事照顾好', '约一次说走就走的散步'],
+  encounter: ['你还记得第一次见面时，对方说了什么吗？', '从偶遇里找话头', '和人并肩走一段', '从共同爱好聊起', '给新朋友在桌边留个座'],
   career: ['真要一起做一件事，第一步交给谁？', '先动手搭个样子', '理清事情的顺序', '让双方把话说透', '守住收尾的细节'],
-  self: ['你最近哪件小事，最像卡上的自己？', '安静地留意细节', '先试一个新点子', '把站在边上的人拉进来', '留一段自己的节奏'],
+  self: ['你最近哪件小事，最像卡上的自己？', '安静地留意细节', '先试一个新点子', '把站在边上的人拉进来', '按自己的步子走一会儿'],
   wallet: ['一起过一个开心的周末，你们会把钱花在哪？', '给开心留一份预算', '把旧物重新用起来', '请大家坐下来吃饭', '为期待的体验慢慢攒'],
-  fortune: ['把今天最想做的一件小事，写下来交换看看？', '带头迈出第一步', '给忙乱留一点空', '把手边的小物修好', '约想念的人出来走走'],
+  fortune: ['今天各自最想做哪件小事？写下来交换看看吧。', '带头迈出第一步', '给忙乱留一点空', '把手边的小物修好', '约想念的人出来走走'],
   travel: ['下一站只有半天，你最想替对方安排什么？', '把车次和路线安排好', '顺着香味拐个弯', '照顾走慢的那个人', '把一路的声音留下来'],
   chat: ['现在给对方发条语音，你想用什么开场？', '用一句玩笑暖场', '听见晚安的后半句', '给这一天选首歌', '把下次见面定下来'],
   jianghu: ['要再送一次鱼灯，你们俩想在哪座桥会合？', '从倒影中认出路', '给鱼灯补一弯月', '让一条街都来帮忙', '带着鱼灯跃上船']
@@ -58,7 +58,7 @@ function setupSample(sample, item, type) {
 function drawEcho() {
   const hello=get('friendHello');
   hello.hidden=!(page===0 && invitedBy?.key===theme.key);
-  if(!hello.hidden) hello.textContent='朋友抽到了「'+roles[invitedBy.type].name+'」。你选完这十题，就能看到你们的双人卡。';
+  if(!hello.hidden) hello.textContent='朋友测到的是「'+roles[invitedBy.type].name+'」。你选完这十题，就能看到你们的双人卡。';
   const echo=get('sceneEcho');
   echo.hidden=page!==1 && page!==5;
   if(echo.hidden) return;
@@ -248,7 +248,7 @@ async function exportFilm(hd) {
     get(hd?'hdImage':'gifImage').src=url;save.href=url;
     save.download=story.shots[2].title+(hd?'-高清三幕.webp':'-微信三幕.gif');
     get(panel).hidden=false;get(panel).scrollIntoView({block:'center'});
-    get('filmStatus').textContent=(hd?'1080 × 1326 高清动图':'微信 GIF')+' · '+(blob.size/1048576).toFixed(1)+' MB'+(degraded?' · 部分镜头使用了静帧':'');
+    get('filmStatus').textContent=(hd?'1080 × 1326 高清动图':'微信 GIF')+' · '+(blob.size/1048576).toFixed(1)+' MB'+(degraded?' · 部分场景以静图显示':'');
     button.textContent=hd?'查看高清动图':'查看微信 GIF';
   }catch{
     if(run!==filmRun)return;
@@ -260,12 +260,12 @@ async function exportFilm(hd) {
   }
 }
 function inviteURL(key,type) {
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=8&play='+encodeURIComponent(key)+'#friend='+type;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=9&play='+encodeURIComponent(key)+'#friend='+type;
 }
 
 async function copyInvite() {
   const run=filmRun,type=winner(answers);
-  const message='我在「'+theme.label+'」里是「'+roles[type].name+'」。你觉得像吗？测完看看咱俩的双人卡。 '+inviteURL(theme.key,type);
+  const message='我在「'+theme.label+'」里测到的是「'+roles[type].name+'」。你觉得像吗？测完看看咱俩的双人卡。 '+inviteURL(theme.key,type);
   const status=get('inviteMessage');
   let copied=false;
   try{await navigator.clipboard.writeText(message);copied=true;}catch{}
@@ -276,7 +276,7 @@ async function copyInvite() {
 
 async function showDuet(item,from,to,run) {
   const friend=item.roles[from],me=item.roles[to],lines=duetPrompts[item.key];
-  const note=from===to?'你们都习惯'+lines[to+1]+'。上一次这样做，你们各自想到了谁？':'朋友习惯'+lines[from+1]+'，你习惯'+lines[to+1]+'。';
+  const note=from===to?'这次，你们都更愿意'+lines[to+1]+'。上一次这样做，你们各自想到了谁？':'这次，朋友更愿意'+lines[from+1]+'，你更愿意'+lines[to+1]+'。';
   get('duet').hidden=false;
   get('duetText').textContent=note+' '+lines[0];
   get('duetRetry').hidden=true;
@@ -288,7 +288,7 @@ async function showDuet(item,from,to,run) {
     c.fillStyle='#fff3dd';c.fillRect(0,0,720,746);
     c.fillStyle=me.ink;c.fillRect(0,0,720,116);
     c.fillStyle='#fff5de';c.font='bold 22px sans-serif';c.fillText('有点像我   /   '+item.label,28,39);
-    c.font='bold 42px serif';c.fillText('我们俩碰在一起',26,92);
+    c.font='bold 42px serif';c.fillText('我们俩的双人卡',26,92);
     pictures.forEach((im,i)=>{
       const x=i*360;drawCrop(c,im,x,116,360,360);
       c.fillStyle=i?me.ink:friend.ink;c.fillRect(x,476,360,77);

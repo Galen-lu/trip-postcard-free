@@ -1,7 +1,9 @@
 function posterPath(stem, small=false) {
+  if(stem==='spring-demo')return springPhoto('reunion',true);
   return 'art/'+stem+(small?'-sm':'')+'.webp?v=8';
 }
 function motionPath(stem) {
+  if(stem==='spring-demo')return springPreviewURL();
   return 'film/'+stem+'.mp4?v=8';
 }
 function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=8';}
@@ -100,7 +102,7 @@ function resetScenePhoto(){
   dialogBlob='';get('scenePhoto').hidden=true;get('scenePhoto').removeAttribute('src');
   get('sceneDownload').hidden=true;get('sceneDownload').removeAttribute('href');
   get('scenePhotoMode').hidden=false;get('scenePhotoMode').disabled=false;
-  get('scenePhotoMode').textContent='查看可保存的动图';get('bigScene').hidden=false;
+  get('scenePhotoMode').textContent='查看动图原图';get('bigScene').hidden=false;
 }
 async function showScenePhoto(){
   const run=dialogRun, stem=theme.key+'-'+answers[4],button=get('scenePhotoMode'),big=get('bigScene');
