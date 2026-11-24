@@ -15,56 +15,33 @@ const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let motionOn = !motionPreference.matches && !navigator.connection?.saveData;
 let invitedBy = null;
 let filmRun = 0;
-let film = null;
-let tick = 0;
-let elapsed = 0;
-let playing = false;
-let gifUrl = '', hdUrl = '';
-let activeShot=-1;
-let exporting=false;
-const sceneDuration = 3400;
-const width = 360, height = 442;
+let film = null, tick = 0, playing = false, exporting = false;
+let gifUrl='', hdUrl='';
+const width=360, height=442;
 
-function scenesFor(item, choices, type) {
-  const q0 = item.questions[0], q4 = item.questions[4], role = item.roles[type];
-  return [
-    {title:q0[0], caption:q0[2+choices[0]], stem:item.key+'-opening',src:artUrl(item.key,'opening')},
-    {title:q4[0], caption:q4[2+choices[4]], stem:item.key+'-'+choices[4],src:artUrl(item.key,choices[4])},
-    {title:role.name, caption:role.tag, stem:item.key+'-portrait'+type,src:artUrl(item.key,'portrait'+type)}
-  ];
+// Every entry point uses the same photographed action as the fifth answer.
+const tileChoice={love:0,encounter:0,career:2,self:1,wallet:2,fortune:0,travel:2,chat:2,jianghu:3};
+const departmentChoice={love:'love-3',career:'career-0',self:'self-3',wallet:'wallet-1',fortune:'fortune-1',play:'jianghu-2'};
+function chosenShot(item,choice,type){
+  return {stem:item.key+'-'+choice,choice,type,key:item.key,label:item.label,role:item.roles[type],caption:item.questions[4][2+choice]};
 }
-
-function setupSample(sample, item, type) {
-  const scenes = scenesFor(item, Array(10).fill(type), type);
-  let position = 0, timer;
-  function draw() {
-    const shot = scenes[position];
-    setClip(sample.querySelector('.sample-art'),shot.stem,true);
-    sample.querySelector('strong').textContent = ['开场','选择','角色'][position]+' · '+shot.title;
-    sample.querySelector('figcaption span').textContent = shot.caption;
-  }
-  function step() { position=(position+1)%3; draw(); }
-  sample.querySelector('button').onclick=step;
+function setupSample(sample,item,type){
+  const shot=chosenShot(item,type,type);
+  sample.querySelector('strong').textContent=shot.role.name;
+  sample.querySelector('figcaption span').textContent=shot.caption;
   sample.ontoggle=()=>{
-    clearInterval(timer);
-    if(!sample.open)forgetClips(sample);
-    if (sample.open) {
-      position=0; draw();
-      timer=setInterval(()=>{if(motionOn && !document.hidden && !get('home').hidden) step();},sceneDuration);
-    }
+    if(sample.open)setClip(sample.querySelector('.sample-art'),shot.stem,true);
+    else forgetClips(sample);
   };
 }
-
-function drawEcho() {
+function drawEcho(){
   const hello=get('friendHello');
   hello.hidden=!(page===0 && invitedBy?.key===theme.key);
-  if(!hello.hidden) hello.textContent='朋友测到的是「'+roles[invitedBy.type].name+'」。你选完这十题，就能看到你们的双人卡。';
-  const echo=get('sceneEcho');
-  echo.hidden=page!==1 && page!==5;
-  if(echo.hidden) return;
-  const scene=page===1?0:4;
-  setClip(echo.querySelector('.echo-art'),theme.key+'-'+(scene===0?'opening':answers[4]),true);
-  echo.querySelector('figcaption').textContent='已收入小片 · '+questions[scene][answers[scene]+2];
+  if(!hello.hidden)hello.textContent='朋友测到的是「'+roles[invitedBy.type].name+'」。你选完这十题，就能看到你们的双人卡。';
+  const echo=get('sceneEcho');echo.hidden=page!==5;
+  if(echo.hidden){forgetClips(echo);return;}
+  setClip(echo.querySelector('.echo-art'),theme.key+'-'+answers[4],true);
+  echo.querySelector('figcaption').textContent='你选的那一幕 · '+questions[4][answers[4]+2];
 }
 
 function setMotion(enabled) {
@@ -86,181 +63,123 @@ function loadArt(src) {
   });
 }
 
-function clearFilm() {
-  filmRun++;
-  cancelAnimationFrame(tick);
-  playing=false; elapsed=0; activeShot=-1; exporting=false;
-  for(const shot of film?.shots || []) if(shot.video){shot.video.pause();shot.video.removeAttribute('src');shot.video.load();}
+function clearFilm(){
+  ++filmRun;cancelAnimationFrame(tick);playing=false;exporting=false;
+  if(film?.video){film.video.pause();film.video.removeAttribute('src');film.video.load();}
   film=null;
-  if(gifUrl) URL.revokeObjectURL(gifUrl);
-  if(hdUrl)URL.revokeObjectURL(hdUrl);gifUrl='';hdUrl='';get('hdMake').disabled=true;get('hdMake').textContent='制作高清动图';
-  for(const id of ['gifPanel','hdPanel','duet','duetCard','duetSave','filmCanvas','filmNext','filmPlay','retryFilm','duetRetry']) get(id).hidden=true;
-  for(const id of ['duetCard','gifImage','hdImage']) get(id).removeAttribute('src');
-  for(const id of ['duetSave','gifSave','hdSave']) get(id).removeAttribute('href');
-  get('filmPosition').textContent='';
-  get('filmStatus').textContent='';
-  get('gifMake').disabled=true;
-  get('gifMake').textContent='制作微信 GIF';
+  for(const url of [gifUrl,hdUrl])if(url.startsWith('blob:'))URL.revokeObjectURL(url);
+  hdUrl='';gifUrl='';
+  for(const id of ['gifPanel','hdPanel','duet','duetCard','duetSave','filmCanvas','filmPlay','retryFilm','duetRetry'])get(id).hidden=true;
+  for(const id of ['duetCard','hdImage','gifImage'])get(id).removeAttribute('src');
+  for(const id of ['duetSave','hdSave','gifSave']){const a=get(id);a.removeAttribute('href');a.onclick=null;}
+  get('filmStatus').textContent='';get('filmPosition').textContent='';
+  for(const [id,label] of [['hdMake','保存高清动图'],['gifMake','制作小尺寸 GIF']]){get(id).disabled=true;get(id).textContent=label;}
 }
-
-// Keep the onscreen artwork and the saved GIF on the same drawing path.
-function drawFrame(c, story, index, phase, media) {
-  const shot=story.shots[index];
-  c.save();
-  c.scale(c.canvas.width/width,c.canvas.height/height);
-  c.fillStyle='#fbf2df'; c.fillRect(0,0,width,height);
-  c.fillStyle=story.ink; c.fillRect(0,0,width,36);
-  c.fillStyle='#fff6dc'; c.font='bold 13px sans-serif';
-  c.fillText('有点像我   /   '+story.label,15,23);
-  c.textAlign='right'; c.fillText(['序幕   1 / 3','我选的那一幕   2 / 3','我的角色   3 / 3'][index],345,23);
-  c.textAlign='left';
-  c.save(); c.beginPath(); c.rect(0,36,360,267); c.clip();
-  drawCrop(c,media || shot.img,0,36,360,267);
-  c.restore();
-  c.fillStyle=story.ink; c.font='bold 28px "Microsoft YaHei",serif';
-  c.fillText(shot.title,16,342,330);
-  c.fillStyle='#263b34'; c.font='17px "Microsoft YaHei",sans-serif';
-  wrapCardText(c,shot.caption,328).forEach((line,i)=>c.fillText(line,16,373+i*23));
-  for(let i=0;i<3;i++){c.fillStyle=i===index?story.ink:'#d6cdba';c.fillRect(16+i*32,426,26,3);}
-  c.fillStyle='#54584e'; c.textAlign='right'; c.font='11px sans-serif';
-  c.fillText(story.key==='fortune'?'民俗趣签 · 仅供娱乐':'我的三幕小片',344,431);
+function drawFrame(c,shot,media){
+  c.save();c.scale(c.canvas.width/width,c.canvas.height/height);
+  c.fillStyle='#fbf2df';c.fillRect(0,0,width,height);
+  c.fillStyle=shot.role.ink;c.fillRect(0,0,width,35);
+  c.fillStyle='#fff6dc';c.font='bold 13px "Microsoft YaHei",sans-serif';c.fillText('有点像我　/　'+shot.label,16,23);
+  c.fillStyle='#61594c';c.font='14px "Microsoft YaHei",sans-serif';c.fillText('我选的那一幕',16,64);
+  c.drawImage(media,0,80,360,608/3);
+  c.fillStyle=shot.role.ink;c.font='bold 26px "Microsoft YaHei",serif';c.fillText(shot.role.name,16,321,328);
+  c.fillStyle='#283b34';c.font='17px "Microsoft YaHei",sans-serif';
+  wrapCardText(c,shot.caption,328).forEach((line,i)=>c.fillText(line,16,353+i*23));
+  c.fillStyle=shot.role.ink;c.fillRect(16,401,30,2);
+  c.font='12px "Microsoft YaHei",sans-serif';c.fillStyle='#59594e';
+  c.fillText(shot.key==='fortune'?'民俗趣签 · 仅供娱乐':'生活趣测 · 我的选择',16,427);
   c.restore();
 }
-
 function drawCrop(c,media,x,y,w,h){
   const iw=media.videoWidth||media.naturalWidth||media.width,ih=media.videoHeight||media.naturalHeight||media.height;
   const scale=Math.max(w/iw,h/ih),sw=w/scale,sh=h/scale;
   c.drawImage(media,(iw-sw)/2,(ih-sh)/2,sw,sh,x,y,w,h);
 }
-function previewShot(shot){
-  if(!shot.video){
-    const video=motionVideo();video.preload='auto';video.src=motionPath(shot.stem);shot.video=video;
-    video.addEventListener('loadeddata',()=>{if(film?.shots[activeShot]===shot && !playing)presentFilm();},{once:true});
-  }
-  return shot.video;
+function presentFilm(){
+  if(film?.video.readyState>=2)drawFrame(get('filmCanvas').getContext('2d'),film,film.video);
+  get('filmPlay').textContent=playing?'暂停画面':'播放画面';
 }
-function presentFilm() {
-  const span=3*sceneDuration;
-  const index=Math.min(2,Math.floor(elapsed/sceneDuration));
-  if(activeShot!==index){
-    film.shots[activeShot]?.video?.pause();activeShot=index;
-    if(playing){const v=previewShot(film.shots[index]);v.currentTime=0;v.play().catch(()=>{});}
-  }
-  const video=film.shots[index].video;
-  drawFrame(get('filmCanvas').getContext('2d'),film,index,elapsed/sceneDuration,video?.readyState>=2?video:null);
-  get('filmPosition').textContent=['第一幕 · 开场','第二幕 · 我的选择','第三幕 · 我的角色'][index];
-  get('filmPlay').textContent=playing?'暂停':elapsed>=span?'重播小片':'播放小片';
+function pauseFilm(){
+  cancelAnimationFrame(tick);playing=false;film?.video.pause();if(film)presentFilm();
 }
-
-function pauseFilm() {
-  cancelAnimationFrame(tick); playing=false;
-  film?.shots[activeShot]?.video?.pause();
-  if(film) presentFilm();
-}
-
-function playFilm() {
-  if(!film) return;
-  if(elapsed>=sceneDuration*3) elapsed=0;
-  playing=true;
-  const idx=Math.min(2,Math.floor(elapsed/sceneDuration));
-  const video=previewShot(film.shots[idx]);video.play().catch(()=>{});
-  const startTime=performance.now()-elapsed;
-  let lastDraw=-100;
-  function frame(now) {
-    elapsed=Math.min(sceneDuration*3,now-startTime);
-    if(elapsed>=sceneDuration*3){pauseFilm();return;}
-    if(now-lastDraw>=42){presentFilm();lastDraw=now;}
-    tick=requestAnimationFrame(frame);
-  }
-  tick=requestAnimationFrame(frame);
-}
-
-async function openFilm(type) {
-  clearFilm();
-  const run=filmRun,item=theme;
-  const shots=scenesFor(item,answers,type);
-  get('filmStatus').textContent='正在装入你的三幕画面…';
-  if(invitedBy?.key===item.key) showDuet(item,invitedBy.type,type,run);
-  try {
-    const images=await Promise.all(shots.map(s=>loadArt(s.src)));
-    if(run!==filmRun) return;
-    shots.forEach((s,i)=>s.img=images[i]);
-    film={key:item.key,label:item.label,ink:item.roles[type].ink,shots};
-    get('filmCanvas').setAttribute('aria-label',shots.map(s=>s.title+'。'+s.caption).join('　'));
-    for(const id of ['filmCanvas','filmPlay','filmNext']) get(id).hidden=false;
-    get('gifMake').disabled=false;get('hdMake').disabled=false;
-    get('filmStatus').textContent='';
-    presentFilm();
-    if(motionOn && !document.hidden) playFilm();
-  }catch{
-    if(run!==filmRun)return;
-    get('filmStatus').textContent='小片的场景还没载入，可以重试。';
-    get('retryFilm').hidden=false;
-  }
-}
-
-async function exportFilm(hd) {
-  const panel=hd?'hdPanel':'gifPanel', cached=hd?hdUrl:gifUrl;
-  if(cached){get(panel).hidden=false;get(panel).scrollIntoView({block:'center'});return;}
-  if(!film || exporting)return;
-  const run=filmRun,story=film,button=get(hd?'hdMake':'gifMake');
-  const videos=[];
-  exporting=true;get('hdMake').disabled=true;get('gifMake').disabled=true;pauseFilm();
-  let degraded=false;
+async function playFilm(){
+  const current=film;if(!current || current.video.readyState<2)return;
   try{
-    const surface=document.createElement('canvas'),scale=hd?3:1;
-    surface.width=width*scale;surface.height=height*scale;
-    const ctx=surface.getContext('2d',{willReadFrequently:!hd});
-    const encoder=hd?null:window.cardGif.GIFEncoder(), frames=[];
-    const count=hd?16:9;
-    for(let i=0;i<3;i++){
-      const shot=story.shots[i],v=motionVideo();videos.push(v);v.preload='auto';v.src=motionPath(shot.stem);
-      let ready=true;
-      try{await waitClip(v);}catch{ready=false;degraded=true;}
+    await current.video.play();if(current!==film || current.video.paused)return;
+    playing=true;let last=-100;
+    function frame(now){
+      if(current!==film||!playing)return;
+      if(now-last>=34){presentFilm();last=now;}
+      tick=requestAnimationFrame(frame);
+    }
+    cancelAnimationFrame(tick);tick=requestAnimationFrame(frame);
+  }catch{if(current===film){pauseFilm();get('filmStatus').textContent='点「播放画面」可再试一次。';}}
+}
+async function openFilm(type){
+  clearFilm();const run=filmRun,item=theme,shot=chosenShot(item,answers[4],type);
+  if(invitedBy?.key===item.key)showDuet(item,invitedBy.type,type,run);
+  const v=motionVideo();film=shot;shot.video=v;v.preload='auto';v.src=motionPath(shot.stem);
+  get('filmStatus').textContent='正在载入你选的那一幕…';
+  // The published HD image can also be opened if a device cannot decode H.264.
+  get('hdMake').disabled=!publishedCard(shot);
+  try{
+    await waitClip(v);if(run!==filmRun)return;
+    get('filmCanvas').hidden=false;get('filmPlay').hidden=false;
+    get('filmCanvas').setAttribute('aria-label',shot.role.name+'。'+shot.caption);
+    get('filmPosition').textContent='我选的那一幕';get('filmStatus').textContent='';
+    get('hdMake').disabled=false;get('gifMake').disabled=false;presentFilm();
+    if(motionOn && !document.hidden)playFilm();
+  }catch{if(run===filmRun){get('filmStatus').textContent='画面没载入，可以重试。';get('retryFilm').hidden=false;}}
+}
+function publishedCard(shot){
+  return 'cards/'+shot.stem+'-'+shot.type+'.gif?v=10';
+}
+async function exportFilm(hd){
+  if(!film||exporting)return;
+  const shot=film,run=filmRun,id=hd?'hd':'gif',panel=get(id+'Panel'),img=get(id+'Image'),save=get(id+'Save'),status=get('filmStatus');
+  if(hd?hdUrl:gifUrl){panel.hidden=false;panel.scrollIntoView({block:'center'});return;}
+  const button=get(id+'Make'),remote=hd?publishedCard(shot):'';
+  const filename=shot.role.name+'-'+shot.caption+'.gif';
+  exporting=true;get('hdMake').disabled=true;get('gifMake').disabled=true;pauseFilm();
+  let v,url='',blob;
+  try{
+    if(remote){button.textContent='正在打开高清原图…';url=remote;}
+    else{
+      v=motionVideo();v.preload='auto';v.src=motionPath(shot.stem);await waitClip(v);
+      const canvas=document.createElement('canvas'),scale=hd?3:1;canvas.width=width*scale;canvas.height=height*scale;
+      const c=canvas.getContext('2d',{willReadFrequently:true}),gif=window.cardGif.GIFEncoder();
+      const n=Math.round(v.duration*(hd?12:10));
       let palette;
-      for(let f=0;f<count;f++){
+      for(let i=0;i<n;i++){
         if(run!==filmRun)return;
-        button.textContent='制作中 '+Math.round(100*(i*count+f)/(3*count))+'%';
-        if(ready){
-          try{await seekClip(v,Math.min(v.duration-.06,2.9*f/(count-1)));}catch{ready=false;degraded=true;}
-        }
+        button.textContent='正在制作 '+Math.round(100*i/n)+'%';await seekClip(v,i*v.duration/n);
         if(run!==filmRun)return;
-        drawFrame(ctx,story,i,f/(count-1),ready?v:null);
-        const delay=f===count-1?700:Math.round(2700/(count-1));
-        if(hd){
-          const blob=await new Promise(done=>surface.toBlob(done,'image/webp',.87));
-          if(!blob || blob.type!=='image/webp')throw Error('WebP unavailable');
-          frames.push({bytes:new Uint8Array(await blob.arrayBuffer()),delay});
-        }else{
-          const data=ctx.getImageData(0,0,width,height).data;
-          if(!palette)palette=window.cardGif.quantize(data,256);
-          encoder.writeFrame(window.cardGif.applyPalette(data,palette),width,height,{palette,delay,repeat:0});
-        }
+        drawFrame(c,shot,v);const rgba=c.getImageData(0,0,canvas.width,canvas.height).data;
+        if(!palette)palette=window.cardGif.quantize(rgba,256);
+        const delay=10*(Math.round(100*(i+1)*v.duration/n)-Math.round(100*i*v.duration/n));
+        gif.writeFrame(window.cardGif.applyPalette(rgba,palette),canvas.width,canvas.height,{palette,delay,repeat:0});
         await new Promise(done=>setTimeout(done,0));
       }
+      gif.finish();blob=new Blob([gif.bytes()],{type:'image/gif'});url=await inlineImageURL(blob);
     }
     if(run!==filmRun)return;
-    let blob;
-    if(hd)blob=animatedWebP(surface.width,surface.height,frames);
-    else{encoder.finish();blob=new Blob([encoder.bytes()],{type:'image/gif'});}
-    const url=URL.createObjectURL(blob), save=get(hd?'hdSave':'gifSave');
+    img.src=url;await img.decode();if(run!==filmRun)return;
     if(hd)hdUrl=url;else gifUrl=url;
-    get(hd?'hdImage':'gifImage').src=url;save.href=url;
-    save.download=story.shots[2].title+(hd?'-高清三幕.webp':'-微信三幕.gif');
-    get(panel).hidden=false;get(panel).scrollIntoView({block:'center'});
-    get('filmStatus').textContent=(hd?'1080 × 1326 高清动图':'微信 GIF')+' · '+(blob.size/1048576).toFixed(1)+' MB'+(degraded?' · 部分场景以静图显示':'');
-    button.textContent=hd?'查看高清动图':'查看微信 GIF';
+    panel.hidden=false;bindMediaSave(save,img,url,filename,blob);
+    panel.scrollIntoView({block:'center'});
+    status.textContent=hd?'高清动图已打开 · 1080 × 1326':'小尺寸动图已打开 · 360 × 442';
+    button.textContent=hd?'查看高清动图':'查看小尺寸 GIF';
   }catch{
     if(run!==filmRun)return;
-    get('filmStatus').textContent='这个格式暂时未能保存，可以重试，或选择另一种动图格式。';
-    button.textContent=hd?'重试高清动图':'重试微信 GIF';
+    img.removeAttribute('src');status.textContent='动图没有载入，请重试。';button.textContent=hd?'重试高清动图':'重试小尺寸 GIF';
   }finally{
-    for(const v of videos){v.pause();v.removeAttribute('src');v.load();}
-    if(run===filmRun){exporting=false;get('hdMake').disabled=false;get('gifMake').disabled=false;}
+    if(v){v.pause();v.removeAttribute('src');v.load();}
+    if(run===filmRun){exporting=false;get('hdMake').disabled=!publishedCard(shot)&&shot.video.readyState<2;get('gifMake').disabled=shot.video.readyState<2;}
   }
 }
+
 function inviteURL(key,type) {
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=9&play='+encodeURIComponent(key)+'#friend='+type;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=10&play='+encodeURIComponent(key)+'#friend='+type;
 }
 
 async function copyInvite() {
@@ -325,7 +244,6 @@ function initStories() {
   get('closeScene').onclick=()=>{const d=get('sceneDialog');if(typeof d.close==='function')d.close();else{d.removeAttribute('open');closeBig();}};
 
   get('filmPlay').onclick=()=>playing?pauseFilm():playFilm();
-  get('filmNext').onclick=()=>{if(!film)return;pauseFilm();elapsed=((Math.floor(elapsed/sceneDuration)+1)%3)*sceneDuration;presentFilm();};
   get('inviteCopy').onclick=copyInvite;
   get('retryFilm').onclick=()=>openFilm(winner(answers));
   get('duetRetry').onclick=()=>showDuet(theme,invitedBy.type,winner(answers),filmRun);

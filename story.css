@@ -62,7 +62,7 @@ html:not(.still) .motion-art img,.tile-art::after{animation:none}
 #wishExport{text-align:center}#wishExport a{display:inline-block;text-decoration:none}
 @media(max-width:650px){.newyear-entry{grid-template-columns:75px 1fr auto;gap:9px;padding-right:10px}.newyear-entry strong{font-size:1.22rem}.newyear-entry small{font-size:.78rem}.newyear-entry b{font-size:.78rem}.wish-scenes{grid-template-columns:repeat(2,minmax(0,1fr))}.wish-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.wish-people button{padding:7px 12px}}
 .spring-hero{position:relative;overflow:hidden;isolation:isolate;background:#0c1224;border-radius:9px;border:1px solid #45364a;color:#f5e6c9;min-height:180px}
-.spring-hero video{position:absolute;right:0;top:0;width:66%;height:100%;object-fit:cover;object-position:50% 35%;z-index:-2}
+.spring-hero canvas{position:absolute;right:0;top:0;width:66%;height:100%;object-fit:cover;object-position:50% 35%;z-index:-2}
 .spring-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#101627 12%,#111526ef 34%,#10162678 59%,transparent)}
 .spring-hero>div{padding:25px 4.5%}.spring-hero h1{color:#ffe1a5;margin:0;font:750 clamp(1.8rem,5vw,3rem)/1.2 "KaiTi",serif;letter-spacing:.04em}
 .spring-hero p{line-height:1.7;font-size:.95rem;margin:10px 0 15px;color:#f3e5d4}
@@ -90,5 +90,7 @@ html:not(.still) .motion-art img,.tile-art::after{animation:none}
 #wishAsFriend{display:block;margin:4px auto 12px}.sealed .wish-actions,.sealed #wishOtherFormats,.sealed #wishEdit,.sealed #wishNew{display:none}
 .still .spring-envelope.unseal{animation:none}
 @media(max-width:380px){.blessing .wish-scenes{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:540px){.spring-hero>div{padding:18px 13px}.spring-hero h1{font-size:1.65rem}.spring-hero p{font-size:.81rem}.spring-hero video{width:62%}.wish-scenes{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.wish-scenes small{font-size:.73rem}.wish-scenes strong,.wish-scenes small{margin-left:6px;margin-right:3px}.wish-fields{margin-top:16px}.spring-stage{border-radius:4px}}
+@media(max-width:540px){.spring-hero>div{padding:18px 13px}.spring-hero h1{font-size:1.65rem}.spring-hero p{font-size:.81rem}.spring-hero canvas{width:62%}.wish-scenes{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.wish-scenes small{font-size:.73rem}.wish-scenes strong,.wish-scenes small{margin-left:6px;margin-right:3px}.wish-fields{margin-top:16px}.spring-stage{border-radius:4px}}
 @media(max-width:720px){.tile .tile-art img{aspect-ratio:2.12;object-fit:cover}.tile-art>video{object-position:50% 45%}}
+
+#hdImage,#gifImage,#scenePhoto,#wishImage{pointer-events:auto;-webkit-touch-callout:default;touch-action:auto}

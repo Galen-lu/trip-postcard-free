@@ -4,9 +4,9 @@ function posterPath(stem, small=false) {
 }
 function motionPath(stem) {
   if(stem==='spring-demo')return springPreviewURL();
-  return 'film/'+stem+'.mp4?v=8';
+  return 'film/'+stem+'.mp4?v=10';
 }
-function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=8';}
+function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=10';}
 function motionVideo() {
   const v=document.createElement('video');
   v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.preload='none';
@@ -102,7 +102,7 @@ function resetScenePhoto(){
   dialogBlob='';get('scenePhoto').hidden=true;get('scenePhoto').removeAttribute('src');
   get('sceneDownload').hidden=true;get('sceneDownload').removeAttribute('href');
   get('scenePhotoMode').hidden=false;get('scenePhotoMode').disabled=false;
-  get('scenePhotoMode').textContent='查看动图原图';get('bigScene').hidden=false;
+  get('sceneSaveHint').hidden=true;get('scenePhotoMode').textContent='打开高清动图';get('bigScene').hidden=false;
 }
 async function showScenePhoto(){
   const run=dialogRun, stem=theme.key+'-'+answers[4],button=get('scenePhotoMode'),big=get('bigScene');
@@ -114,20 +114,21 @@ async function showScenePhoto(){
       const canvas=document.createElement('canvas');canvas.width=1280;canvas.height=720;
       const context=canvas.getContext('2d'),frames=[];
       if(big.readyState<2)await waitClip(big);
-      for(let i=0;i<24;i++){
+      const count=Math.round(big.duration*12);
+      for(let i=0;i<count;i++){
         if(run!==dialogRun)return;
-        button.textContent='制作中 '+Math.round(i/24*100)+'%';
-        await seekClip(big,i/8);context.drawImage(big,0,0,1280,720);
+        button.textContent='制作中 '+Math.round(i/count*100)+'%';
+        await seekClip(big,i/12);context.drawImage(big,0,0,1280,720);
         const b=await new Promise(done=>canvas.toBlob(done,'image/webp',.78));
         if(!b || b.type!=='image/webp')throw Error('WebP unavailable');
-        frames.push({bytes:new Uint8Array(await b.arrayBuffer()),delay:125});
+        frames.push({bytes:new Uint8Array(await b.arrayBuffer()),delay:Math.round((i+1)*1000/12)-Math.round(i*1000/12)});
       }
       if(run!==dialogRun)return;
-      url=URL.createObjectURL(animatedWebP(1280,720,frames));dialogBlob=url;
+      url=await inlineImageURL(animatedWebP(1280,720,frames));
     }
     const img=get('scenePhoto');img.src=url;await img.decode();
     if(run!==dialogRun)return;
     big.hidden=true;img.hidden=false;button.hidden=true;
-    const link=get('sceneDownload');link.href=url;link.download=theme.label+'-'+theme.questions[4][answers[4]+2]+'.webp';link.hidden=false;
+    get('sceneSaveHint').hidden=false;bindMediaSave(get('sceneDownload'),img,url,theme.label+'-'+theme.questions[4][answers[4]+2]+'.webp');
   }catch{if(run===dialogRun){button.textContent='重试高清动图';button.disabled=false;}}
 }

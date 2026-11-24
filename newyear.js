@@ -109,15 +109,26 @@ function updateWishEditor(){
   }
   if(!customNote)get('wishNote').value=defaultWish(wishPerson,wishChoice,occasion);
 }
-function syncDemo(){
-  const v=get('springDemo');
-  if(get('blessing').hidden||get('wishEditor').hidden||document.hidden||!motionOn){v.pause();return;}
-  if(!v.hasAttribute('src'))v.src=springPreviewURL();
-  v.play().catch(()=>{});
+let demoRun=0,demoFrame=0;
+async function syncDemo(){
+  const run=++demoRun;cancelAnimationFrame(demoFrame);
+  const canvas=get('springDemo');
+  if(get('blessing').hidden||get('wishEditor').hidden||document.hidden)return;
+  const s=wishStateNow();canvas.style.visibility='hidden';
+  try{s.still=await loadArt(springPhoto(s.choice.key,true));}catch{return;}
+  if(run!==demoRun)return;
+  canvas.dataset.scene=s.choice.key;canvas.style.visibility='visible';
+  const begin=performance.now();let last=-100;
+  function frame(now){
+    if(run!==demoRun)return;
+    if(now-last>60){paintSpring(canvas,s,motionOn?(1.4+(now-begin)/1000)%springDuration:4.95);last=now;}
+    if(motionOn)demoFrame=requestAnimationFrame(frame);
+  }
+  frame(begin);
 }
 function clearWishExport(){
   get('wishMovie').pause();get('wishMovie').removeAttribute('src');get('wishMovie').load();get('wishImage').removeAttribute('src');
-  if(wishURL)URL.revokeObjectURL(wishURL);wishURL='';get('wishDownload').removeAttribute('href');get('wishExport').hidden=true;
+  if(wishURL.startsWith('blob:'))URL.revokeObjectURL(wishURL);wishURL='';get('wishDownload').onclick=null;get('wishDownload').removeAttribute('href');get('wishExport').hidden=true;
 }
 function stopWish(){
   wishRun++;wishBusy=false;cancelAnimationFrame(wishFrame);wishState=null;awaitingOpen=false;elapsedWish=0;
@@ -202,7 +213,7 @@ async function saveWish(format){
   const s=wishState,run=wishRun;if(!s?.still||wishBusy)return;
   wishBusy=true;wishButtons(false);
   try{
-    const canvas=document.createElement('canvas');canvas.width=format==='gif'?432:1080;canvas.height=canvas.width*1.25;
+    const canvas=document.createElement('canvas');canvas.width=format==='gif'?720:1080;canvas.height=canvas.width*1.25;
     let blob;
     if(format==='mp4')blob=await wishMovieBlob(s,run,canvas);
     else if(format==='png'){paintSpring(canvas,s,4.95);blob=await new Promise(done=>canvas.toBlob(done,'image/png'));}
@@ -218,18 +229,21 @@ async function saveWish(format){
           frames.push({bytes:new Uint8Array(await f.arrayBuffer()),delay:Math.round((i+1)*1000/fps)-Math.round(i*1000/fps)});
         }else{
           const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-          if(!palette||i%8===0)palette=window.cardGif.quantize(pixels,256);
+          if(!palette||i%12===0)palette=window.cardGif.quantize(pixels,256);
           gif.writeFrame(window.cardGif.applyPalette(pixels,palette),canvas.width,canvas.height,{palette,delay:100,repeat:0});
         }
         if(i%3===0)await new Promise(done=>setTimeout(done,0));
       }
       if(hd)blob=animatedWebP(canvas.width,canvas.height,frames);else{gif.finish();blob=new Blob([gif.bytes()],{type:'image/gif'});}
     }
-    if(!blob)throw Error('empty');checkWishRun(run);clearWishExport();wishURL=URL.createObjectURL(blob);
-    const movie=format==='mp4';get('wishMovie').hidden=!movie;get('wishImage').hidden=movie;
-    get(movie?'wishMovie':'wishImage').src=wishURL;
-    const link=get('wishDownload');link.href=wishURL;link.download=s.choice.title+'-'+springOccasions[s.occasion]+'烟花.'+format;
-    link.textContent='保存'+({mp4:'高清视频',webp:'高清动图',gif:'微信 GIF',png:'高清静图'})[format];
+    if(!blob)throw Error('empty');checkWishRun(run);clearWishExport();
+    const movie=format==='mp4',url=movie?URL.createObjectURL(blob):await inlineImageURL(blob);
+    if(run!==wishRun){if(movie)URL.revokeObjectURL(url);return;}
+    wishURL=url;get('wishMovie').hidden=!movie;get('wishImage').hidden=movie;
+    const media=get(movie?'wishMovie':'wishImage');media.src=url;
+    if(!movie){await media.decode();checkWishRun(run);}
+    get('wishSaveHint').hidden=movie;
+    bindMediaSave(get('wishDownload'),media,url,s.choice.title+'-'+springOccasions[s.occasion]+'烟花.'+format,blob);
     get('wishExport').hidden=false;get('wishStatus').textContent='已做好 · '+canvas.width+' × '+canvas.height+' · '+(blob.size/1048576).toFixed(1)+' MB';
     get('wishExport').scrollIntoView({block:'center'});
   }catch{if(run===wishRun)get('wishStatus').textContent='这个格式暂时没做好，可以重试或改选微信 GIF。';}
@@ -239,7 +253,7 @@ function wishShareUrl(s){
   const p=new URLSearchParams({wish:s.choice.key,person:s.person,day:s.occasion});
   if(s.to)p.set('to',s.to);if(s.from)p.set('from',s.from);if(s.note)p.set('msg',s.note);if(s.strokes.length)p.set('ink',sketchCode(s.strokes));
   if(s.spots?.length)p.set('sky',s.spots.map(pos=>pos.join('.')).join('-'));
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=9&play=newyear#'+p;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=10&play=newyear#'+p;
 }
 async function copyWish(){
   const run=wishRun,msg='我给你留了一场'+springOccasions[occasion]+'烟花。点一下，看看夜空里藏着什么。 '+wishShareUrl(wishState);
@@ -269,7 +283,7 @@ function changeSpot(point){
 }
 function initWishes(){
   const entry=get('newyearEntry');setClip(entry.querySelector('.year-cover'),'spring-demo',true);
-  entry.onclick=()=>editWish(true);get('springDemo').poster=springPhoto('reunion',true);
+  entry.onclick=()=>editWish(true);
   for(const [data,group,prop] of [[wishPeople,'wishPeople','person'],[springOccasions,'wishOccasions','occasion']]){
     for(const [key,label] of Object.entries(data)){
       const b=document.createElement('button');b.dataset[prop]=key;b.textContent=label;
@@ -281,7 +295,7 @@ function initWishes(){
     b.innerHTML='<span class="wish-thumb"><img alt="" loading="lazy"></span><strong></strong><small></small>';
     b.querySelector('img').src=springPhoto(s.key,true);b.querySelector('strong').textContent=s.title;
     b.querySelector('small').textContent=springDesigns[s.key].scene+' · '+springDesigns[s.key].name;
-    b.onclick=()=>{wishChoice=s;updateWishEditor();};get('wishScenes').append(b);
+    b.onclick=()=>{wishChoice=s;updateWishEditor();syncDemo();};get('wishScenes').append(b);
   }
   setupPad();get('wishNote').oninput=()=>{customNote=true;};get('wishUseDefault').onclick=()=>{customNote=false;updateWishEditor();};
   get('wishHome').onclick=()=>{stopWish();show('home');syncDemo();entry.focus({preventScroll:true});};
