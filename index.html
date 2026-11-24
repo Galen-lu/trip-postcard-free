@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#153e38">
-<title>旅途邮局 · 生活趣测馆</title><meta name="robots" content="noindex,nofollow"><meta name="description" content="从爱情、事业、性格、财运、算命趣签和娱乐里选一题，把你的生活选择做成一张插画明信片。">
+<title>有点像我 · 生活趣测馆</title><meta name="robots" content="noindex,nofollow"><meta name="description" content="从爱情、事业、性格、财运、算命趣签和娱乐里选一题，把你的生活选择做成一张插画明信片。">
 <style>
 *{box-sizing:border-box} :root{color-scheme:light;font-family:"Microsoft YaHei",system-ui,sans-serif;color:#183e38;background:#f5f2e8}body{margin:0}button,a{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #bd532e;outline-offset:4px}[hidden]{display:none!important}
 .shell{max-width:1080px;margin:auto;padding:0 32px}.mast{display:flex;align-items:center;gap:10px;height:80px;border-bottom:2px solid #214e45;font-weight:800;letter-spacing:.14em}.mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#1f5146;color:#fff9dd;font-family:Georgia,serif;font-style:italic}.mono{font:600 .78rem/1.4 Consolas,monospace;letter-spacing:.12em}.mast .mono{margin-left:auto;color:#48675b}.hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:6%;padding:56px 0}.hero h1{font:800 clamp(3rem,6.4vw,5.75rem)/1.12 "STKaiti","KaiTi","SimSun",serif;letter-spacing:-.04em;margin:22px 0}.tag{display:inline-block;border-bottom:2px solid #ad4e2b;color:#974023;padding:0 0 5px}.hero p,.blurb{font-size:1.06rem;color:#475c54;line-height:1.85;max-width:36em}.action{background:#214e45;border:1px solid #214e45;color:#fffbef;border-radius:4px;padding:15px 30px;font-weight:750;min-height:48px}.action:hover{background:#113c34}.sub{background:transparent;color:#214e45;border:1px solid #809188}.sub:hover{background:#e5e9df}.hero .action{margin-top:12px;min-width:200px}.post{background:#fffdf5;border:1px solid #b9b8a5;box-shadow:5px 7px 0 #d5d7c7;padding:12px;transform:rotate(1.6deg);margin:8px}.post canvas{width:100%;display:block}.post figcaption{display:flex;align-items:center;justify-content:space-between;padding:13px 2px 1px;font-size:.88rem}.line{max-width:1080px;border-top:1px solid #a0ada0;padding:16px 0 28px;color:#5c6b62;font-size:.84rem}.quiz,.result{max-width:680px;margin:34px auto 42px}.quizhead{display:flex;justify-content:space-between;align-items:center;color:#566a60}.meter{height:5px;background:#d6dccf;margin:12px 0 28px}.meter span{display:block;height:100%;background:#ba532c}.quiz h2,.result h2{font:750 clamp(1.6rem,4vw,2.65rem)/1.45 "STKaiti","KaiTi","SimSun",serif;margin:12px 0 22px}.options{display:grid;gap:10px}.option{display:flex;gap:15px;align-items:center;text-align:left;border:1px solid #a8b4a7;background:#fffcf3;color:#21453b;border-radius:4px;padding:14px;line-height:1.55}.option:hover{border-color:#21453b}.option[aria-pressed=true]{background:#e0eadb;border:2px solid #225446;padding:13px}.letter{flex:none;font:600 1rem Georgia,serif;border:1px solid #b6c0b3;border-radius:50%;width:29px;height:29px;display:grid;place-items:center}.quiznav{display:flex;justify-content:space-between;align-items:center;margin-top:22px}.back{padding:12px;background:none;color:#30574c;border:0;text-decoration:underline;text-underline-offset:4px}button:disabled{cursor:default;opacity:.45}.result img{display:block;width:100%;height:auto;margin:18px 0}.proof{border-left:3px solid #bc663d;padding:0 0 0 14px;line-height:1.75}.buttons{display:flex;gap:12px;flex-wrap:wrap}.buttons a{text-decoration:none}.hint{font-size:.85rem;color:#53665a}.result h2{margin-bottom:0}.result p{line-height:1.8}
@@ -21,12 +21,12 @@
 @media(max-width:720px){.departments{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0 24px}.department img{aspect-ratio:1.35}.department span{padding:15px 8px 7px;font-size:1.1rem}.division{display:block;padding-top:13px}.division p{margin-top:4px}.tile:has(details[open]){align-items:start}.tile>img{align-self:stretch;max-height:220px}.pictures .option{font-size:.94rem}.catalog .intro{margin-bottom:8px}}
 </style>
 <main class="shell">
-<header class="mast"><span class="mark" aria-hidden="true">邮</span>旅途邮局<small>好友免费体验</small></header>
+<header class="mast"><span class="mark" aria-hidden="true">像</span>有点像我<small>好友免费体验</small></header>
 <section id="home" class="catalog"><h1>今天，想测哪一面？</h1><p class="intro">选个你关心的话题。答完十道生活选择题，领一张写着你亲选场景的明信片。</p><nav class="departments" id="departments" aria-label="选择栏目"></nav><div class="division" aria-live="polite"><h2 id="sectionTitle"></h2><p id="sectionText"></p></div><div id="themeGrid" class="theme-grid"></div></section>
 <section id="quiz" class="quiz" hidden><div class="quizhead"><span id="scene"></span><span class="mono" id="count"></span></div><div class="meter"><span id="bar"></span></div><h2 tabindex="-1" id="question"></h2><div class="options" id="options"></div><nav class="quiznav"><button id="back" class="back">上一题</button><button id="next" class="action">下一题</button></nav><button id="exitQuiz" class="back catalog-back">返回主题</button></section>
 <section id="result" class="result" hidden><span class="tag" id="resultLabel"></span><h2 tabindex="-1" id="role"></h2><p id="reading"></p><img id="card" alt="旅行搭子结果明信片"><p id="artStatus" class="hint" role="status" hidden>插画暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><p class="proof" id="proof"></p><p id="tip"></p><div class="buttons"><a id="save" class="action" download>保存结果卡</a><button id="restart" class="action sub">再测一次</button><button id="inviteCopy" class="action sub" hidden>复制好友邀帖</button><button id="otherTheme" class="back">换个主题</button></div><p id="inviteMessage" class="hint" role="status" hidden></p><p class="hint">手机也可以长按上方图片保存。</p></section>
 <section id="paperPanel" class="offline-panel" hidden><h2 tabindex="-1" id="paperTitle">微信图片版</h2><p>把整张图发给朋友，在微信里放大即可答题，图底有结果。</p><nav><a id="paperSave" class="action" download="旅行搭子-微信答题长图.png">保存答题图</a><button id="paperClose" class="back">回到首页</button></nav><img id="paperImage" alt="十道旅行选择题，附计分说明与四种搭子结果"></section>
-<footer class="line">旅途邮局 · 仅供娱乐，请按当下的真实想法作答。</footer></main>
+<footer class="line">有点像我 · 仅供娱乐，请按当下的真实想法作答。</footer></main>
 <script src="themes.js?v=5"></script>
 <script>
 const travelQuestions = [
@@ -179,7 +179,7 @@ async function makeCard(type) {
    const c = canvas.getContext('2d');
    c.fillStyle = '#fff3d8'; c.fillRect(0,0,canvas.width,canvas.height);
    c.fillStyle = role.ink;
-   c.font = 'bold 26px sans-serif'; c.fillText('旅途邮局   /   '+item.label+(item.key==='fortune'?'   ·   仅供娱乐':''),38,55);
+   c.font = 'bold 26px sans-serif'; c.fillText('有点像我   /   '+item.label+(item.key==='fortune'?'   ·   仅供娱乐':''),38,55);
    c.font = 'bold 75px serif'; c.fillText(role.name,32,148,736);
    c.drawImage(image, 0,179,800,800);
    c.fillStyle = role.ink; c.fillRect(0,979,800,131);
@@ -210,7 +210,7 @@ function finish(){const type=winner(answers),r=roles[type];show('result');get('r
  makeCard(type);get('role').focus({preventScroll:true})}
 get('inviteCopy').onclick=async()=>{
  const name=roles[winner(answers)].name;
- const url='https://galen-lu.github.io/trip-postcard-free/?v=5&play=jianghu';
+ const url='https://galen-lu.github.io/trip-postcard-free/?v=6&play=jianghu';
  const message='上元夜送完鱼灯，我在江湖叫「'+name+'」。换你来送，这条街会怎么喊你？ '+url;
  const status=get('inviteMessage');
  try{await navigator.clipboard.writeText(message);status.textContent='邀帖已复制，可以粘贴到微信。';}
@@ -242,7 +242,7 @@ function makePaperGame() {
    if (line) appendLine();
  }
  y = 50;
- write('旅途邮局     /     '+theme.label+(theme.key==='fortune'?'   ·   仅供娱乐':''), 26, 700, '#ffe7af');
+ write('有点像我     /     '+theme.label+(theme.key==='fortune'?'   ·   仅供娱乐':''), 26, 700, '#ffe7af');
  y += 16;
  write(theme.title, 66, 800, '#fff9ed');
  y += 9;
