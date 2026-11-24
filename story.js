@@ -19,14 +19,11 @@ let film = null, tick = 0, playing = false, exporting = false;
 let gifUrl='', hdUrl='';
 const width=360, height=442;
 
-// Every entry point uses the same photographed action as the fifth answer.
+// Catalogue previews are examples. Completed quizzes resolve through matching.js.
 const tileChoice={love:0,encounter:0,career:2,self:1,wallet:2,fortune:0,travel:2,chat:2,jianghu:3};
 const departmentChoice={love:'love-3',career:'career-0',self:'self-3',wallet:'wallet-1',fortune:'fortune-1',play:'jianghu-2'};
-function chosenShot(item,choice,type){
-  return {stem:item.key+'-'+choice,choice,type,key:item.key,label:item.label,role:item.roles[type],caption:item.questions[4][2+choice]};
-}
 function setupSample(sample,item,type){
-  const shot=chosenShot(item,type,type);
+  const shot=momentFor(item,{type,variant:0});
   sample.querySelector('strong').textContent=shot.role.name;
   sample.querySelector('figcaption span').textContent=shot.caption;
   sample.ontoggle=()=>{
@@ -34,14 +31,11 @@ function setupSample(sample,item,type){
     else forgetClips(sample);
   };
 }
-function drawEcho(){
+function showFriendHello(){
   const hello=get('friendHello');
   hello.hidden=!(page===0 && invitedBy?.key===theme.key);
   if(!hello.hidden)hello.textContent='朋友测到的是「'+roles[invitedBy.type].name+'」。你选完这十题，就能看到你们的双人卡。';
-  const echo=get('sceneEcho');echo.hidden=page!==5;
-  if(echo.hidden){forgetClips(echo);return;}
-  setClip(echo.querySelector('.echo-art'),theme.key+'-'+answers[4],true);
-  echo.querySelector('figcaption').textContent='你选的那一幕 · '+questions[4][answers[4]+2];
+
 }
 
 function setMotion(enabled) {
@@ -80,7 +74,7 @@ function drawFrame(c,shot,media){
   c.fillStyle='#fbf2df';c.fillRect(0,0,width,height);
   c.fillStyle=shot.role.ink;c.fillRect(0,0,width,35);
   c.fillStyle='#fff6dc';c.font='bold 13px "Microsoft YaHei",sans-serif';c.fillText('有点像我　/　'+shot.label,16,23);
-  c.fillStyle='#61594c';c.font='14px "Microsoft YaHei",sans-serif';c.fillText('我选的那一幕',16,64);
+  c.fillStyle='#61594c';c.font='14px "Microsoft YaHei",sans-serif';c.fillText('你的场景 · '+shot.title,16,64,328);
   c.drawImage(media,0,80,360,608/3);
   c.fillStyle=shot.role.ink;c.font='bold 26px "Microsoft YaHei",serif';c.fillText(shot.role.name,16,321,328);
   c.fillStyle='#283b34';c.font='17px "Microsoft YaHei",sans-serif';
@@ -115,24 +109,24 @@ async function playFilm(){
     cancelAnimationFrame(tick);tick=requestAnimationFrame(frame);
   }catch{if(current===film){pauseFilm();get('filmStatus').textContent='点「播放画面」可再试一次。';}}
 }
-async function openFilm(type){
-  clearFilm();const run=filmRun,item=theme,shot=chosenShot(item,answers[4],type);
+async function openFilm(moment){
+  clearFilm();const run=filmRun,item=theme,shot={...moment},type=shot.type;
   if(invitedBy?.key===item.key)showDuet(item,invitedBy.type,type,run);
   const v=motionVideo();film=shot;shot.video=v;v.preload='auto';v.src=motionPath(shot.stem);
-  get('filmStatus').textContent='正在载入你选的那一幕…';
+  get('filmStatus').textContent='正在载入与你的答案匹配的场景…';
   // The published HD image can also be opened if a device cannot decode H.264.
   get('hdMake').disabled=!publishedCard(shot);
   try{
     await waitClip(v);if(run!==filmRun)return;
     get('filmCanvas').hidden=false;get('filmPlay').hidden=false;
     get('filmCanvas').setAttribute('aria-label',shot.role.name+'。'+shot.caption);
-    get('filmPosition').textContent='我选的那一幕';get('filmStatus').textContent='';
+    get('filmPosition').textContent=shot.title;get('filmStatus').textContent='';
     get('hdMake').disabled=false;get('gifMake').disabled=false;presentFilm();
     if(motionOn && !document.hidden)playFilm();
   }catch{if(run===filmRun){get('filmStatus').textContent='画面没载入，可以重试。';get('retryFilm').hidden=false;}}
 }
 function publishedCard(shot){
-  return 'cards/'+shot.stem+'-'+shot.type+'.gif?v=10';
+  return 'cards/'+shot.stem+'-'+shot.type+'.gif?v=11';
 }
 async function exportFilm(hd){
   if(!film||exporting)return;
@@ -179,11 +173,11 @@ async function exportFilm(hd){
 }
 
 function inviteURL(key,type) {
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=10&play='+encodeURIComponent(key)+'#friend='+type;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=11&play='+encodeURIComponent(key)+'#friend='+type;
 }
 
 async function copyInvite() {
-  const run=filmRun,type=winner(answers);
+  const run=filmRun,type=matchedMoment.type;
   const message='我在「'+theme.label+'」里测到的是「'+roles[type].name+'」。你觉得像吗？测完看看咱俩的双人卡。 '+inviteURL(theme.key,type);
   const status=get('inviteMessage');
   let copied=false;
@@ -200,7 +194,7 @@ async function showDuet(item,from,to,run) {
   get('duetText').textContent=note+' '+lines[0];
   get('duetRetry').hidden=true;
   try{
-    const pictures=await Promise.all([loadArt(artUrl(item.key,'portrait'+from)),loadArt(artUrl(item.key,from===to?to:'portrait'+to))]);
+    const pictures=await Promise.all([loadArt(artUrl(item.key,'portrait'+from)),loadArt(posterPath(matchedMoment.stem))]);
     if(run!==filmRun)return;
     const canvas=document.createElement('canvas');canvas.width=720;canvas.height=746;
     const c=canvas.getContext('2d');
@@ -231,10 +225,10 @@ function initStories() {
   get('gifMake').onclick=()=>exportFilm(false);
   get('hdMake').onclick=()=>exportFilm(true);
   get('sceneView').onclick=()=>{
-    const type=answers[4],video=get('bigScene');
+    const shot=matchedMoment,video=get('bigScene');
     resetScenePhoto();
-    video.poster=artUrl(theme.key,type);video.src=motionPath(theme.key+'-'+type);
-    get('bigCaption').textContent=theme.questions[4][type+2];
+    video.poster=posterPath(shot.stem);video.src=motionPath(shot.stem);
+    get('bigCaption').textContent=shot.title+' · '+shot.caption;
     if(typeof get('sceneDialog').showModal==='function')get('sceneDialog').showModal();else get('sceneDialog').setAttribute('open','');
     video.play().catch(()=>{});
   };
@@ -245,8 +239,8 @@ function initStories() {
 
   get('filmPlay').onclick=()=>playing?pauseFilm():playFilm();
   get('inviteCopy').onclick=copyInvite;
-  get('retryFilm').onclick=()=>openFilm(winner(answers));
-  get('duetRetry').onclick=()=>showDuet(theme,invitedBy.type,winner(answers),filmRun);
+  get('retryFilm').onclick=()=>openFilm(matchedMoment);
+  get('duetRetry').onclick=()=>showDuet(theme,invitedBy.type,matchedMoment.type,filmRun);
   document.addEventListener('visibilitychange',()=>{if(document.hidden && playing) pauseFilm();refreshClips();});
   window.addEventListener('hashchange',openInvitation);openInvitation();
 }

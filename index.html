@@ -20,11 +20,11 @@
 .options.pictures{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.pictures .option{align-content:start;display:grid;grid-template-columns:auto 1fr;gap:7px;padding:9px}.pictures .option[aria-pressed=true]{padding:8px}.pictures .option img{grid-column:1/-1;display:block;width:100%;height:auto;aspect-ratio:1.6;object-fit:cover}.pictures .letter{width:23px;height:23px}.pictures .option span:last-child{line-height:1.55}
 @media(max-width:720px){.departments{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0 24px}.department img{aspect-ratio:1.35}.department span{padding:15px 8px 7px;font-size:1.1rem}.division{display:block;padding-top:13px}.division p{margin-top:4px}.tile:has(details[open]){align-items:start}.tile>img{align-self:stretch;max-height:220px}.pictures .option{font-size:.94rem}.catalog .intro{margin-bottom:8px}}
 </style>
-<link rel="stylesheet" href="story.css?v=10.1">
+<link rel="stylesheet" href="story.css?v=11">
 <main class="shell">
 <header class="mast"><span class="mark" aria-hidden="true">像</span>有点像我<small>免费体验</small><button class="motion-switch" id="motionSwitch" aria-pressed="true">动态画面 开</button></header>
 <section id="home" class="catalog"><button type="button" class="newyear-entry" id="newyearEntry"><span class="year-cover"><img alt=""></span><span><strong>新年烟花</strong><small>画一束烟花，送给惦记的人</small></span><b>做一份 ›</b></button>
- <h1>今天，想测哪一面？</h1><p class="intro">挑个主题，答十道题。你选的场景会出现在结果卡里，还可以和朋友一起做张双人卡。</p>
+ <h1>今天，想测哪一面？</h1><p class="intro">挑个主题，答十道生活情境题。答完揭晓你的角色和专属动图，也可以邀请朋友做双人卡。</p>
  <nav class="departments" id="departments" aria-label="选择栏目"></nav><div class="division" aria-live="polite"><h2 id="sectionTitle"></h2><p id="sectionText"></p></div><div id="themeGrid" class="theme-grid"></div></section>
 <section id="blessing" class="blessing" hidden>
  <button id="wishHome" class="back">‹ 回到首页</button>
@@ -49,37 +49,38 @@
  <div id="wishExport" hidden><img id="wishImage" alt="做好的新年贺卡，可长按保存"><video id="wishMovie" controls playsinline hidden></video><p id="wishSaveHint" class="hint">在微信里长按上方贺卡，选择「保存图片」或「发送给朋友」。</p><a download class="action sub" id="wishDownload">保存贺卡</a></div>
  <button id="wishEdit" class="back">改一改这份祝福</button><button id="wishNew" class="back">我也做一份</button></div>
 </section>
-<section id="quiz" class="quiz" hidden><p id="friendHello" class="friend-note" hidden></p><div class="quizhead"><span id="scene"></span><span class="mono" id="count"></span></div><div class="meter"><span id="bar"></span></div><figure id="sceneEcho" class="scene-echo" hidden><div class="echo-art"><img alt=""></div><figcaption></figcaption></figure><h2 tabindex="-1" id="question"></h2><div class="options" id="options"></div><button id="sceneView" class="back" hidden>放大查看所选场景</button><nav class="quiznav"><button id="back" class="back">上一题</button><button id="next" class="action">下一题</button></nav><button id="exitQuiz" class="back catalog-back">返回主题</button></section>
-<dialog id="sceneDialog"><video id="bigScene" controls muted playsinline loop></video><img id="scenePhoto" alt="可长按保存的高清场景动图" hidden><p id="sceneSaveHint" class="hint" hidden>长按上方动图即可打开微信的图片菜单。</p><p id="bigCaption"></p><div class="buttons"><button class="action sub" id="scenePhotoMode">打开高清动图</button><a id="sceneDownload" class="action sub" download hidden>保存 720p 动图</a><button class="back" id="closeScene">返回本题</button></div></dialog>
+<section id="quiz" class="quiz" hidden><p id="friendHello" class="friend-note" hidden></p><div class="quizhead"><span id="scene"></span><span class="mono" id="count"></span></div><div class="meter"><span id="bar"></span></div><h2 tabindex="-1" id="question"></h2><div class="options" id="options"></div><nav class="quiznav"><button id="back" class="back">上一题</button><button id="next" class="action">下一题</button></nav><button id="exitQuiz" class="back catalog-back">返回主题</button></section>
+<dialog id="sceneDialog"><video id="bigScene" controls muted playsinline loop></video><img id="scenePhoto" alt="可长按保存的高清场景动图" hidden><p id="sceneSaveHint" class="hint" hidden>长按上方动图即可打开微信的图片菜单。</p><p id="bigCaption"></p><div class="buttons"><button class="action sub" id="scenePhotoMode">打开高清动图</button><a id="sceneDownload" class="action sub" download hidden>保存 720p 动图</a><button class="back" id="closeScene">回到结果</button></div></dialog>
 <section id="result" class="result" hidden>
  <span class="tag" id="resultLabel"></span><h2 tabindex="-1" id="role"></h2><p id="reading"></p>
  <div id="duet" hidden><h3>你们的双人卡</h3><p id="duetText"></p><img id="duetCard" alt="双人卡" hidden><a id="duetSave" class="action sub" download hidden>保存双人卡</a><button class="back" id="duetRetry" hidden>重新加载双人卡</button></div>
- <div class="film"><canvas id="filmCanvas" width="720" height="884" hidden aria-label="我选的那一幕"></canvas><div class="film-controls"><button id="filmPlay" class="back" hidden>播放画面</button><span id="filmPosition"></span></div></div>
+ <div class="film"><canvas id="filmCanvas" width="720" height="884" hidden aria-label="为你匹配的场景"></canvas><div class="film-controls"><button id="filmPlay" class="back" hidden>播放画面</button><span id="filmPosition"></span><button id="sceneView" class="back">放大场景</button></div></div>
  <div class="buttons"><button id="hdMake" class="action" disabled>保存高清动图</button><button id="gifMake" class="action sub" disabled>制作小尺寸 GIF</button><button id="inviteCopy" class="action sub">邀请好友做双人卡</button></div>
  <p id="filmStatus" class="hint" role="status"></p><button id="retryFilm" class="back" hidden>重新载入画面</button><p id="inviteMessage" class="hint" role="status" hidden></p>
  <div id="hdPanel" hidden><img id="hdImage" alt="我的高清动态结果卡，可长按保存"><a class="action sub" id="hdSave" download>下载高清 GIF</a><p class="hint">在微信里长按上方动图，选择「保存图片」或「发送给朋友」。</p></div>
  <div id="gifPanel" hidden><img id="gifImage" alt="可长按保存的动态结果卡"><a id="gifSave" class="action sub" download>保存 GIF 动图</a><p class="hint">手机可长按上方动图，选择保存或发送给朋友。</p></div>
- <p class="proof" id="proof"></p><p id="tip"></p>
+ <section class="match-proof" aria-labelledby="matchWhy"><h3 id="matchWhy">为什么是这一幕</h3><p id="matchSummary"></p><ul id="proof"></ul></section><p id="tip"></p>
  <details id="stillPanel"><summary>查看高清静态结果卡</summary><img id="card" alt="我的趣测结果卡"><p id="artStatus" class="hint" role="status" hidden>场景照片暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><a id="save" class="action sub" download>保存高清卡</a></details>
  <div class="buttons again"><button id="restart" class="action sub">再测一次</button><button id="otherTheme" class="back">换个主题</button></div>
 </section>
 <section id="paperPanel" class="offline-panel" hidden><h2 tabindex="-1" id="paperTitle">微信图片版</h2><p>把这张长图发给朋友，放大就能看题。记下每题的字母，在图底对照结果。</p><nav><a id="paperSave" class="action" download="旅行搭子-微信答题长图.png">保存答题图</a><button id="paperClose" class="back">回到首页</button></nav><img id="paperImage" alt="十道选择题、计分说明和四种结果"></section>
 <footer class="line">有点像我 · 生活趣测仅供娱乐。</footer></main>
-<script src="themes.js?v=10"></script>
+<script src="themes.js?v=11"></script>
+<script src="matching.js?v=11"></script>
 <script src="vendor/gifenc.js"></script>
 <script src="media-save.js?v=10"></script>
-<script src="motion.js?v=10"></script>
-<script src="story.js?v=10"></script>
+<script src="motion.js?v=11"></script>
+<script src="story.js?v=11"></script>
 <script src="vendor/mp4-muxer.js"></script>
 <script src="fireworks.js?v=10"></script>
-<script src="newyear.js?v=10.1"></script>
+<script src="newyear.js?v=11"></script>
 <script>
 const travelQuestions = [
  ['出发前夜','群里只定了目的地，明早就要出发。你先做什么？','把车次、住址和集合时间放进群公告','找一站没去过的小镇，提议顺路下车','问清谁容易晕车，给对方留个靠前的位置','拍下大家乱成一团的行李，做相册封面'],
  ['刚刚到站','离入住还有两小时，你想拿这段空当做什么？','找好寄存柜，顺便摸清回酒店的路','钻进出站口那条飘着葱油香的小巷','找个能坐下吃面、还能给手机充电的地方','去月台尽头，给每个人拍一张抵达照'],
  ['突遇阵雨','山路突然下起雨，原计划走不成了。你说什么？','“室内展馆有空档，我查下末班车。”','“听见没，隔壁屋檐下有人弹琴，去听听？”','“谁鞋湿了？先坐五分钟，我包里有干袜子。”','“雨在棚顶的声音真好听，我录一小段。”'],
  ['午饭时间','点菜时四个人都说随便。你怎么接？','圈出三道招牌，按人数算好分量','指着隔壁桌那盘叫不出名字的菜问老板','先问有没有忌口，再把菜单递给最饿的人','让大家各给一道菜起外号，写在小票背面'],
- ['旅途留影','旅伴想拍一张最像你的照片，你会选哪一幕？','在山口摊开地图，给大家指出下一站','拐进冒着热气的小巷，问老板今天煮什么','打开背包，分一只橘子给歇脚的同伴','在夜市的鱼灯下，举起录音机收一段街声'],
+ ["临时换车","原定的车临时停运，下一班还有一小时。你会先做什么？","核对换乘和到站时间，把新安排告诉大家","向站旁的小摊打听，这一小时附近能逛什么","给拎着大包的旅伴找个坐得下的地方","听见站外有人唱地方戏，想收一小段声音"],
  ['夜市走散','逛夜市时，你和朋友走散了。发完定位，你还会……','约在固定摊位碰头，告诉大家招牌颜色','去旁边围满本地人的摊位打听卖的是什么','问对方电量还剩多少，要不要过去接','拍下头顶那盏鱼形灯，留作这晚的记号'],
  ['清晨散步','比约定早醒了一小时。你拿起房卡去哪？','踩一遍去码头的路，记下最方便的入口','跟着第一辆送菜车，找找早市在哪','给还没起床的人带两份早餐，酱料分开','等天空亮一格，拍下街灯熄灭的瞬间'],
  ['临时加站','车窗外闪过一片花田，朋友说真想下去。你会……','看好回程班次，算算停半小时来不来得及','在下一站下车，问问当地人哪条路能走过去','先看看谁想留在车上，陪对方一起选','把窗上的倒影和花田拍在同一张照片里'],
@@ -93,7 +94,7 @@ const travelRoles=[
  {name:'沿途收集员',tag:'别人带回纪念品，你带回整条街的声音。',read:'你会替一段旅程留住气味、笑话和傍晚的光。散团以后，是你的小相册让大家又坐回同一节车厢。',tip:'挑一个瞬间把手机交给别人，让你也出现在旅行记录里。',sky:'#d2afbc',hill:'#9186a0',ink:'#494b60'}
 ];
 const get=id=>document.getElementById(id);
-let answers=[],page=0;
+let answers=[],page=0,matchedMoment=null;
 
 const themes = [
  loveTheme, encounterTheme, fortuneTheme, jianghuTheme,
@@ -144,7 +145,7 @@ function selectTheme(item) {
  get('paperSave').removeAttribute('href');
 }
 function home() {
- activePoster++;
+ matchedMoment=null;activePoster++;
  clearFilm();
  show('home');
  document.querySelector('[data-theme="' + theme.key + '"]').focus({preventScroll:true});
@@ -184,14 +185,11 @@ function show(id){
 }
 function drawQuestion(){
  show('quiz');const q=questions[page];get('scene').textContent=theme.label+' · '+q[0];get('count').textContent=String(page+1).padStart(2,'0')+' / 10';get('bar').style.width=((page+1)*10)+'%';
- drawEcho();
+ showFriendHello();
  get('question').textContent=q[1];forgetClips(get('options'));get('options').replaceChildren();get('back').disabled=page===0;get('next').textContent=page===9?'查看结果':'下一题';
- const visualQuestion=page===4;
- get('options').classList.toggle('pictures',visualQuestion);
  for(let i=0;i<4;i++){
    const type=(i+page)%4,b=document.createElement('button');
    b.className='option'; b.dataset.type=type;
-   if(visualQuestion){const frame=document.createElement('span'),art=new Image();frame.className='choice-art';art.alt='';frame.append(art);b.append(frame);setClip(frame,theme.key+'-'+type,false);}
    const l=document.createElement('span');l.className='letter';l.textContent='ABCD'[i];
    const caption=document.createElement('span');caption.textContent=q[2+type];
    b.append(l,caption);b.onclick=()=>{answers[page]=type;highlight()};get('options').append(b);
@@ -203,11 +201,9 @@ function highlight(){
  for(const b of get('options').children){
    const type=Number(b.dataset.type),pressed=type===selected;
    b.setAttribute('aria-pressed',String(pressed));
-   if(page===4)setClip(b.querySelector('.choice-art'),theme.key+'-'+type,true);
  }
- get('sceneView').hidden=page!==4 || selected===undefined;get('next').disabled=selected===undefined;
+ get('next').disabled=selected===undefined;
 }
-function winner(choices){const score=[0,0,0,0];for(const a of choices)score[a]++;const high=Math.max(...score);return choices.slice().reverse().find(a=>score[a]===high)}
 function wrapCardText(context,text,maxWidth) {
  const lines=[''];
  for(const ch of text) {
@@ -216,15 +212,15 @@ function wrapCardText(context,text,maxWidth) {
  }
  return lines;
 }
-async function makeCard(type) {
+async function makeCard(shot) {
+ const type=shot.type;
  const request = ++activePoster;
  const item = theme, role = roles[type];
  const image = new Image();
- image.src = artUrl(item.key,'portrait'+type);
- const sceneType = answers[4];
- const chosenScene = item.questions[4][2+sceneType];
+ image.src=posterPath(shot.stem);
+ const chosenScene=shot.caption;
  const sceneImage = new Image();
- sceneImage.src=artUrl(item.key,sceneType);
+ sceneImage.src=artUrl(item.key,shot.stem===item.key+'-portrait'+type?type:'portrait'+type);
  get('card').hidden = true;
  get('save').hidden = true;
  get('artStatus').hidden = true;
@@ -248,7 +244,7 @@ async function makeCard(type) {
    lines.forEach((line,i) => c.fillText(line,39,top+i*45));
    drawCrop(c,sceneImage,32,842,204,140);
    c.fillStyle=role.ink;c.font='bold 24px sans-serif';
-   c.fillText('我选的那一幕',258,875);
+   c.fillText(shot.title,258,875);
    c.fillStyle='#293b34';c.font='29px sans-serif';
    wrapCardText(c,chosenScene,500).forEach((line,i)=>c.fillText(line,258,927+i*37));
    c.fillStyle=role.ink;c.fillRect(34,1011,732,2);
@@ -261,18 +257,33 @@ async function makeCard(type) {
      c.font='29px sans-serif'; c.fillText(role.tip,38,1292,724);
    }
    const url = canvas.toDataURL('image/png');
-   get('card').src = url; get('card').alt = role.name+'。'+role.tag+' 我选的那一幕：'+chosenScene; get('card').hidden = false;
+   get('card').src = url; get('card').alt = role.name+'。'+role.tag+' 为你匹配的场景：'+chosenScene; get('card').hidden = false;
    get('save').href = url; get('save').download = role.name+'-'+item.label+'.png'; get('save').hidden = false;
  } catch {
    if (request === activePoster) get('artStatus').hidden = false;
  }
 }
-function finish(){const type=winner(answers),r=roles[type];show('result');get('role').textContent=r.name;get('reading').textContent=r.read;get('resultLabel').textContent=theme.key==='jianghu'?'上元灯会 · 江湖名帖':theme.label+' · 你的趣测结果';get('tip').textContent=(theme.key==='jianghu'?'同路邀帖：':'可以试试：')+r.tip;const details=answers.flatMap((a,i)=>a===type?[i]:[]).slice(0,2);
- get('proof').textContent='你在测试中的选择：'+details.map(i=>'「'+questions[i][0]+'」时，你选了“'+questions[i][2+type].replace(/^[“]|[”]$/g,'')+'”').join('；')+'。';
+function finish(){
+ const match=matchMoment(theme.key,answers);
+ matchedMoment=momentFor(theme,match);
+ const role=matchedMoment.role;
+ show('result');
+ get('role').textContent=role.name;get('reading').textContent=role.read;
+ get('resultLabel').textContent=theme.key==='jianghu'?'上元灯会 · 江湖名帖':theme.label+' · 你的趣测结果';
+ get('tip').textContent=(theme.key==='jianghu'?'同路邀帖：':'可以试试：')+role.tip;
+ const set=momentLibrary[theme.key];
+ get('matchSummary').textContent=match.variant===2?
+   '你的十个回答里，「'+roles[set.mix.roles[0]].name+'」和「'+roles[set.mix.roles[1]].name+'」这两种倾向很接近，一起落在了「'+matchedMoment.title+'」这一幕。':
+   '综合十个回答，你更接近「'+role.name+'」。其中这两次选择，尤其像「'+matchedMoment.title+'」这一幕。';
+ const proof=get('proof');proof.replaceChildren();
+ for(const i of supportingAnswers(theme,answers,match)){
+   const li=document.createElement('li');li.textContent='「'+questions[i][0]+'」时，你选了“'+questions[i][2+answers[i]].replace(/^[“「]|[”」]$/g,'')+'”。';proof.append(li);
+ }
  get('inviteMessage').hidden=true;get('stillPanel').open=false;
- makeCard(type);openFilm(type);get('role').focus({preventScroll:true})}
-function start(){activePoster++;clearFilm();answers=[];page=0;drawQuestion()}
-get('otherTheme').onclick=home;get('exitQuiz').onclick=home;get('retryArt').onclick=()=>makeCard(winner(answers));get('restart').onclick=start;get('back').onclick=()=>{if(page>0){page--;drawQuestion()}};get('next').onclick=()=>{if(answers[page]===undefined)return;if(page===9)finish();else{page++;drawQuestion()}};
+ makeCard(matchedMoment);openFilm(matchedMoment);get('role').focus({preventScroll:true});
+}
+function start(){matchedMoment=null;activePoster++;clearFilm();answers=[];page=0;drawQuestion()}
+get('otherTheme').onclick=home;get('exitQuiz').onclick=home;get('retryArt').onclick=()=>makeCard(matchedMoment);get('restart').onclick=start;get('back').onclick=()=>{if(page>0){page--;drawQuestion()}};get('next').onclick=()=>{if(answers[page]===undefined)return;if(page===9)finish();else{page++;drawQuestion()}};
 // Lay out the printable game from the same questions and roles as the interactive version.
 function makePaperGame() {
  const width = 1080, margin = 64, area = width - 2 * margin;

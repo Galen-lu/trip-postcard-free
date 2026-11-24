@@ -94,3 +94,5 @@ html:not(.still) .motion-art img,.tile-art::after{animation:none}
 @media(max-width:720px){.tile .tile-art img{aspect-ratio:2.12;object-fit:cover}.tile-art>video{object-position:50% 45%}}
 
 #hdImage,#gifImage,#scenePhoto,#wishImage{pointer-events:auto;-webkit-touch-callout:default;touch-action:auto}
+
+.match-proof{margin:22px 0;padding:16px 18px;border-left:3px solid #a45838;background:#f7eedc}.match-proof h3{margin:0;color:#354d43;font-size:1.04rem}.match-proof p,.match-proof ul{margin:8px 0 0;line-height:1.7}.match-proof ul{padding-left:1.25em}.film-controls{gap:8px;flex-wrap:wrap}

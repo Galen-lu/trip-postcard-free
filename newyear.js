@@ -253,7 +253,7 @@ function wishShareUrl(s){
   const p=new URLSearchParams({wish:s.choice.key,person:s.person,day:s.occasion});
   if(s.to)p.set('to',s.to);if(s.from)p.set('from',s.from);if(s.note)p.set('msg',s.note);if(s.strokes.length)p.set('ink',sketchCode(s.strokes));
   if(s.spots?.length)p.set('sky',s.spots.map(pos=>pos.join('.')).join('-'));
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=10&play=newyear#'+p;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=11&play=newyear#'+p;
 }
 async function copyWish(){
   const run=wishRun,msg='我给你留了一场'+springOccasions[occasion]+'烟花。点一下，看看夜空里藏着什么。 '+wishShareUrl(wishState);

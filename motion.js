@@ -4,9 +4,9 @@ function posterPath(stem, small=false) {
 }
 function motionPath(stem) {
   if(stem==='spring-demo')return springPreviewURL();
-  return 'film/'+stem+'.mp4?v=10';
+  return 'film/'+stem+'.mp4?v=11';
 }
-function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=10';}
+function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=11';}
 function motionVideo() {
   const v=document.createElement('video');
   v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.preload='none';
@@ -105,7 +105,7 @@ function resetScenePhoto(){
   get('sceneSaveHint').hidden=true;get('scenePhotoMode').textContent='打开高清动图';get('bigScene').hidden=false;
 }
 async function showScenePhoto(){
-  const run=dialogRun, stem=theme.key+'-'+answers[4],button=get('scenePhotoMode'),big=get('bigScene');
+  const run=dialogRun, stem=matchedMoment.stem,button=get('scenePhotoMode'),big=get('bigScene');
   let url=nativeSceneURL(stem);
   button.disabled=true;big.pause();
   try{
@@ -129,6 +129,6 @@ async function showScenePhoto(){
     const img=get('scenePhoto');img.src=url;await img.decode();
     if(run!==dialogRun)return;
     big.hidden=true;img.hidden=false;button.hidden=true;
-    get('sceneSaveHint').hidden=false;bindMediaSave(get('sceneDownload'),img,url,theme.label+'-'+theme.questions[4][answers[4]+2]+'.webp');
+    get('sceneSaveHint').hidden=false;bindMediaSave(get('sceneDownload'),img,url,theme.label+'-'+matchedMoment.title+'.webp');
   }catch{if(run===dialogRun){button.textContent='重试高清动图';button.disabled=false;}}
 }
