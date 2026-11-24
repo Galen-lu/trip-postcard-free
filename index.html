@@ -24,10 +24,10 @@
 <header class="mast"><span class="mark" aria-hidden="true">邮</span>旅途邮局<small>好友免费体验</small></header>
 <section id="home" class="catalog"><h1>今天，想测哪一面？</h1><p class="intro">选个你关心的话题。答完十道生活选择题，领一张写着你亲选场景的明信片。</p><nav class="departments" id="departments" aria-label="选择栏目"></nav><div class="division" aria-live="polite"><h2 id="sectionTitle"></h2><p id="sectionText"></p></div><div id="themeGrid" class="theme-grid"></div></section>
 <section id="quiz" class="quiz" hidden><div class="quizhead"><span id="scene"></span><span class="mono" id="count"></span></div><div class="meter"><span id="bar"></span></div><h2 tabindex="-1" id="question"></h2><div class="options" id="options"></div><nav class="quiznav"><button id="back" class="back">上一题</button><button id="next" class="action">下一题</button></nav><button id="exitQuiz" class="back catalog-back">返回主题</button></section>
-<section id="result" class="result" hidden><span class="tag" id="resultLabel"></span><h2 tabindex="-1" id="role"></h2><p id="reading"></p><img id="card" alt="旅行搭子结果明信片"><p id="artStatus" class="hint" role="status" hidden>插画暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><p class="proof" id="proof"></p><p id="tip"></p><div class="buttons"><a id="save" class="action" download>保存结果卡</a><button id="restart" class="action sub">再测一次</button><button id="otherTheme" class="back">换个主题</button></div><p class="hint">手机也可以长按上方图片保存。</p></section>
+<section id="result" class="result" hidden><span class="tag" id="resultLabel"></span><h2 tabindex="-1" id="role"></h2><p id="reading"></p><img id="card" alt="旅行搭子结果明信片"><p id="artStatus" class="hint" role="status" hidden>插画暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><p class="proof" id="proof"></p><p id="tip"></p><div class="buttons"><a id="save" class="action" download>保存结果卡</a><button id="restart" class="action sub">再测一次</button><button id="inviteCopy" class="action sub" hidden>复制好友邀帖</button><button id="otherTheme" class="back">换个主题</button></div><p id="inviteMessage" class="hint" role="status" hidden></p><p class="hint">手机也可以长按上方图片保存。</p></section>
 <section id="paperPanel" class="offline-panel" hidden><h2 tabindex="-1" id="paperTitle">微信图片版</h2><p>把整张图发给朋友，在微信里放大即可答题，图底有结果。</p><nav><a id="paperSave" class="action" download="旅行搭子-微信答题长图.png">保存答题图</a><button id="paperClose" class="back">回到首页</button></nav><img id="paperImage" alt="十道旅行选择题，附计分说明与四种搭子结果"></section>
 <footer class="line">旅途邮局 · 仅供娱乐，请按当下的真实想法作答。</footer></main>
-<script src="themes.js?v=4"></script>
+<script src="themes.js?v=5"></script>
 <script>
 const travelQuestions = [
  ['出发前夜','群里只定了目的地，明早就要出发。你先做什么？','把车次、住址和集合时间放进群公告','找一站没去过的小镇，提议顺路下车','问清谁容易晕车，给对方留个靠前的位置','拍下大家乱成一团的行李，做相册封面'],
@@ -51,9 +51,9 @@ const get=id=>document.getElementById(id);
 let answers=[],page=0;
 
 const themes = [
- loveTheme, encounterTheme, fortuneTheme,
+ loveTheme, encounterTheme, fortuneTheme, jianghuTheme,
  {key:'travel',title:'你是哪种旅行搭子？',label:'旅行搭子',intro:'离入住还有两小时，你先寄存行李，还是循着葱油香拐进小巷？',cover:3,questions:travelQuestions,roles:travelRoles},
- chatTheme, shopTheme, careerTheme, selfTheme, walletTheme
+ chatTheme, careerTheme, selfTheme, walletTheme
 ];
 const sections = [
  {key:'love',name:'爱情',note:'关于怎样表达喜欢，也关于怎样遇见彼此。',items:['love','encounter']},
@@ -61,7 +61,7 @@ const sections = [
  {key:'self',name:'性格',note:'从日常的小动作里认出自己的底色。',items:['self']},
  {key:'wallet',name:'财运',note:'聊红包、人情和心愿，看看你怎样把日子过得有滋味。',items:['wallet']},
  {key:'fortune',name:'算命趣签',note:'按选择配一支民俗图签，读一句今日小提示。仅供娱乐。',items:['fortune']},
- {key:'play',name:'娱乐',note:'选个轻松的玩法，和朋友交换结果。',items:['travel','chat','shop']}
+ {key:'play',name:'娱乐',note:'上元夜走江湖、出门找搭子，或回群里对一对暗号。',items:['jianghu','travel','chat']}
 ];
 let theme = themes[0], questions = theme.questions, roles = theme.roles;
 let activePoster = 0;
@@ -106,7 +106,7 @@ for (const item of themes) {
  tile.innerHTML = '<img alt="" width="358" height="358"><div class="tile-body"><h2></h2><p></p><div class="tile-actions"><button class="action">开始答题</button><button class="paper-link">微信长图</button></div></div>';
  tile.querySelector('img').src = artUrl(item.key, item.cover);
  tile.querySelector('h2').textContent = item.title;
- const playShelf={travel:'出游搭子',chat:'朋友社交',shop:'小店想象'}[item.key];
+ const playShelf={travel:'出游搭子',chat:'朋友社交',jianghu:'江湖奇遇'}[item.key];
  if(playShelf){
    const shelf=document.createElement('span');shelf.className='tag';shelf.textContent=playShelf;
    tile.querySelector('.tile-body').prepend(shelf);
@@ -114,6 +114,7 @@ for (const item of themes) {
  tile.querySelector('p').textContent = item.intro;
  const launch = tile.querySelector('.action');
  launch.dataset.theme = item.key;
+ if(item.key==='jianghu')launch.textContent='接帖送灯';
  launch.setAttribute('aria-label', '开始答题：' + item.label);
  launch.onclick = () => { selectTheme(item); start(); };
  tile.querySelector('.paper-link').setAttribute('aria-label', '微信长图：' + item.label);
@@ -122,6 +123,7 @@ for (const item of themes) {
  sample.className='samples';
  sample.innerHTML='<summary>看一张结果样卡</summary><figure class="mini-card"><img alt="" width="358" height="358"><figcaption><strong></strong><span></span></figcaption></figure>';
  const sampleType=(item.cover+1)%item.roles.length;
+ if(item.key==='jianghu')sample.querySelector('summary').textContent='先看一张江湖名帖';
  sample.querySelector('strong').textContent=item.roles[sampleType].name;
  sample.querySelector('figcaption span').textContent=item.roles[sampleType].tag;
  const samplePicture=sample.querySelector('img');
@@ -173,7 +175,7 @@ async function makeCard(type) {
    await Promise.all([image.decode(),sceneImage.decode()]);
    if (request !== activePoster) return;
    const canvas = document.createElement('canvas');
-   canvas.width = 800; canvas.height = 1290;
+   canvas.width = 800; canvas.height = item.key==='jianghu' ? 1416 : 1290;
    const c = canvas.getContext('2d');
    c.fillStyle = '#fff3d8'; c.fillRect(0,0,canvas.width,canvas.height);
    c.fillStyle = role.ink;
@@ -190,6 +192,11 @@ async function makeCard(type) {
    c.fillText('我选的那一幕',190,1163);
    c.fillStyle='#293b34';c.font='29px sans-serif';
    wrapCardText(c,chosenScene,570).forEach((line,i)=>c.fillText(line,190,1210+i*39));
+   if(item.key==='jianghu') {
+     c.fillStyle=role.ink; c.fillRect(32,1291,736,2);
+     c.font='bold 24px sans-serif'; c.fillText('同路邀帖',38,1333);
+     c.font='29px sans-serif'; c.fillText(role.tip,38,1380,724);
+   }
    const url = canvas.toDataURL('image/png');
    get('card').src = url; get('card').alt = role.name+'。'+role.tag+' 我选的那一幕：'+chosenScene; get('card').hidden = false;
    get('save').href = url; get('save').download = role.name+'-'+item.label+'.png'; get('save').hidden = false;
@@ -197,9 +204,19 @@ async function makeCard(type) {
    if (request === activePoster) get('artStatus').hidden = false;
  }
 }
-function finish(){const type=winner(answers),r=roles[type];show('result');get('role').textContent=r.name;get('reading').textContent=r.read;get('resultLabel').textContent=theme.label+' · 你的结果明信片';get('tip').textContent='给你的建议：'+r.tip;const details=answers.flatMap((a,i)=>a===type?[i]:[]).slice(0,2);
+function finish(){const type=winner(answers),r=roles[type];show('result');get('role').textContent=r.name;get('reading').textContent=r.read;get('resultLabel').textContent=theme.key==='jianghu'?'上元灯会 · 江湖名帖':theme.label+' · 你的结果明信片';get('tip').textContent=(theme.key==='jianghu'?'同路邀帖：':'给你的建议：')+r.tip;const details=answers.flatMap((a,i)=>a===type?[i]:[]).slice(0,2);
  get('proof').textContent='你在测试中的选择：'+details.map(i=>'「'+questions[i][0]+'」时，你选了“'+questions[i][2+type].replace(/^[“]|[”]$/g,'')+'”').join('；')+'。';
+ get('inviteCopy').hidden=theme.key!=='jianghu';get('inviteMessage').hidden=true;
  makeCard(type);get('role').focus({preventScroll:true})}
+get('inviteCopy').onclick=async()=>{
+ const name=roles[winner(answers)].name;
+ const url='https://galen-lu.github.io/trip-postcard-free/?v=5&play=jianghu';
+ const message='上元夜送完鱼灯，我在江湖叫「'+name+'」。换你来送，这条街会怎么喊你？ '+url;
+ const status=get('inviteMessage');
+ try{await navigator.clipboard.writeText(message);status.textContent='邀帖已复制，可以粘贴到微信。';}
+ catch{status.textContent='长按复制这段邀帖：'+message;}
+ status.hidden=false;
+};
 function start(){answers=[];page=0;drawQuestion()}
 get('otherTheme').onclick=home;get('exitQuiz').onclick=home;get('retryArt').onclick=()=>makeCard(winner(answers));get('restart').onclick=start;get('back').onclick=()=>{if(page>0){page--;drawQuestion()}};get('next').onclick=()=>{if(answers[page]===undefined)return;if(page===9)finish();else{page++;drawQuestion()}};
 // Lay out the printable game from the same questions and roles as the interactive version.
@@ -247,7 +264,7 @@ function makePaperGame() {
  });
  const resultsTop = y - 18;
  y += 18;
- write('打开你的结果明信片', 54, 750, '#fff9ed');
+ write(theme.key==='jianghu'?'揭晓你的江湖名号':'打开你的结果明信片', 54, 750, '#fff9ed');
  y += 8;
  write('出现最多的字母对应你的结果。如并列，从第 10 题倒着看，取最先遇到的并列字母。', 31, 500, '#f5e7c9');
  y += 21;
@@ -286,5 +303,10 @@ get('paperClose').onclick = () => {
  show('home');
  home();
 };
+if(new URLSearchParams(location.search).get('play')==='jianghu'){
+ chooseSection(sections.find(section=>section.key==='play'));
+ selectTheme(jianghuTheme);
+ start();
+}
 </script>
 </html>
