@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; script-src 'unsafe-inline' blob:; style-src 'unsafe-inline'; img-src blob: data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<link rel="icon" href="data:,"><title>亲友礼铺</title>
+<style>body{margin:0;background:#fffaf5;color:#302123;font:17px/1.7 system-ui,sans-serif}.entry{margin:14vh auto;max-width:36rem;padding:24px}.entry h1{font:700 2rem/1.3 "Songti SC",serif}button{font:inherit}</style>
+</head><body><section class="entry"><h1>亲友礼铺</h1><p id="status" role="status">正在打开邀请…</p></section><noscript>请使用支持 JavaScript 的浏览器打开完整邀请链接。</noscript>
+<script>
+(async function(){
+  'use strict';
+  let token=new URLSearchParams(location.hash.slice(1)).get('k');
+  if(location.hash) history.replaceState(null,'',location.pathname+location.search);
+  const status=document.getElementById('status');
+  if(!token || !/^[0-9a-f]{64}$/.test(token)){
+    status.textContent='请从亲友给你的完整邀请链接进入。';return;
+  }
+  if(!window.crypto || !crypto.subtle){
+    status.textContent='请用支持安全连接的浏览器重新打开完整邀请链接。';return;
+  }
+  const raw=Uint8Array.from(token.match(/../g),v=>parseInt(v,16));
+  token=null;
+  try{
+    const key=await crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['decrypt']);
+    raw.fill(0);
+    async function open(name){
+      if(!/^[0-9a-f]{32}$/.test(name))throw Error('Resource');
+      const response=await fetch('./a/'+name+'.bin',{referrerPolicy:'no-referrer',credentials:'omit',redirect:'error'});
+      if(!response.ok)throw Error('Network');
+      const bytes=new Uint8Array(await response.arrayBuffer());
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:bytes.subarray(0,12),
+        additionalData:new TextEncoder().encode('family-card-1/'+name)},key,bytes.subarray(12));
+    }
+    const pack=JSON.parse(new TextDecoder().decode(await open('eaab611643577a0ba9cba213491a0f04')));
+    const style=document.createElement('style');style.textContent=pack.css;document.head.append(style);
+    document.title=pack.title;document.body.innerHTML=pack.shell;
+    for(const id of ['catalog','details']){
+      const data=document.createElement('script');data.type='application/json';data.id=id;
+      data.textContent=JSON.stringify(pack[id]);document.body.append(data);
+    }
+    // The entry is authenticated before any of its assets can be requested.
+    Object.defineProperty(window,'takeFamilyAssetReader',{configurable:true,value:()=>{
+      delete window.takeFamilyAssetReader;
+      const cached=new Map();
+      return async path=>{
+        const name=pack.resources[path];
+        if(!name)throw Error('缺少这幅插画。');
+        if(cached.has(name))return cached.get(name);
+        if(cached.size>=16)cached.delete(cached.keys().next().value);
+        const pending=open(name).then(buffer=>new Blob([buffer],{type:'image/webp'}));
+        cached.set(name,pending);
+        try{return await pending}catch(e){cached.delete(name);throw e}
+      };
+    }});
+    const script=document.createElement('script');
+    const scriptURL=URL.createObjectURL(new Blob([pack.js],{type:'text/javascript'}));
+    script.src=scriptURL;script.onload=()=>URL.revokeObjectURL(scriptURL);
+    script.onerror=()=>{URL.revokeObjectURL(scriptURL);document.body.textContent='暂时无法打开礼铺，请重新打开完整邀请链接。'};
+    document.body.append(script);
+  }catch{
+    raw.fill(0);status.textContent='暂时无法打开邀请，请检查网络并重新打开亲友给你的完整链接。';
+  }
+})();
+</script></body></html>
