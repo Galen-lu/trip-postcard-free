@@ -50,7 +50,7 @@
  <button id="wishEdit" class="back">改一改这份祝福</button><button id="wishNew" class="back">我也做一份</button></div>
 </section>
 <section id="quiz" class="quiz" hidden><p id="friendHello" class="friend-note" hidden></p><div class="quizhead"><span id="scene"></span><span class="mono" id="count"></span></div><div class="meter"><span id="bar"></span></div><h2 tabindex="-1" id="question"></h2><div class="options" id="options"></div><nav class="quiznav"><button id="back" class="back">上一题</button><button id="next" class="action">下一题</button></nav><button id="exitQuiz" class="back catalog-back">返回主题</button></section>
-<dialog id="sceneDialog"><video id="bigScene" controls muted playsinline loop></video><img id="scenePhoto" alt="可长按保存的高清场景动图" hidden><p id="sceneSaveHint" class="hint" hidden>长按上方动图即可打开微信的图片菜单。</p><p id="bigCaption"></p><div class="buttons"><button class="action sub" id="scenePhotoMode">打开高清动图</button><a id="sceneDownload" class="action sub" download hidden>保存 720p 动图</a><button class="back" id="closeScene">回到结果</button></div></dialog>
+<dialog id="sceneDialog"><video id="bigScene" controls muted playsinline loop></video><img id="scenePhoto" alt="可长按保存的高清场景动图" hidden><p id="sceneSaveHint" class="hint" hidden>长按上方动图即可打开微信的图片菜单。</p><p id="bigCaption"></p><div class="buttons"><button class="action" id="playSampleTheme" hidden>测测我的场景</button><button class="action sub" id="scenePhotoMode">打开高清动图</button><a id="sceneDownload" class="action sub" download hidden>保存 720p 动图</a><button class="back" id="closeScene">回到结果</button></div></dialog>
 <section id="result" class="result" hidden>
  <span class="tag" id="resultLabel"></span><h2 tabindex="-1" id="role"></h2><p id="reading"></p>
  <div id="duet" hidden><h3>你们的双人卡</h3><p id="duetText"></p><img id="duetCard" alt="双人卡" hidden><a id="duetSave" class="action sub" download hidden>保存双人卡</a><button class="back" id="duetRetry" hidden>重新加载双人卡</button></div>
@@ -60,20 +60,20 @@
  <div id="hdPanel" hidden><img id="hdImage" alt="我的高清动态结果卡，可长按保存"><a class="action sub" id="hdSave" download>下载高清 GIF</a><p class="hint">在微信里长按上方动图，选择「保存图片」或「发送给朋友」。</p></div>
  <div id="gifPanel" hidden><img id="gifImage" alt="可长按保存的动态结果卡"><a id="gifSave" class="action sub" download>保存 GIF 动图</a><p class="hint">手机可长按上方动图，选择保存或发送给朋友。</p></div>
  <section class="match-proof" aria-labelledby="matchWhy"><h3 id="matchWhy">为什么是这一幕</h3><p id="matchSummary"></p><ul id="proof"></ul></section><p id="tip"></p>
- <details id="stillPanel"><summary>查看高清静态结果卡</summary><img id="card" alt="我的趣测结果卡"><p id="artStatus" class="hint" role="status" hidden>场景照片暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><a id="save" class="action sub" download>保存高清卡</a></details>
+ <details id="stillPanel"><summary>查看高清静态结果卡</summary><img id="card" alt="我的趣测结果卡"><p id="artStatus" class="hint" role="status" hidden>场景画面暂未加载。<button class="back" id="retryArt">重新加载结果卡</button></p><a id="save" class="action sub" download>保存高清卡</a></details>
  <div class="buttons again"><button id="restart" class="action sub">再测一次</button><button id="otherTheme" class="back">换个主题</button></div>
 </section>
 <section id="paperPanel" class="offline-panel" hidden><h2 tabindex="-1" id="paperTitle">微信图片版</h2><p>把这张长图发给朋友，放大就能看题。记下每题的字母，在图底对照结果。</p><nav><a id="paperSave" class="action" download="旅行搭子-微信答题长图.png">保存答题图</a><button id="paperClose" class="back">回到首页</button></nav><img id="paperImage" alt="十道选择题、计分说明和四种结果"></section>
 <footer class="line">有点像我 · 生活趣测仅供娱乐。</footer></main>
 <script src="themes.js?v=11"></script>
-<script src="matching.js?v=11"></script>
+<script src="matching.js?v=12"></script>
 <script src="vendor/gifenc.js"></script>
 <script src="media-save.js?v=10"></script>
-<script src="motion.js?v=11.1"></script>
-<script src="story.js?v=11.1"></script>
+<script src="motion.js?v=12"></script>
+<script src="story.js?v=12"></script>
 <script src="vendor/mp4-muxer.js"></script>
 <script src="fireworks.js?v=10"></script>
-<script src="newyear.js?v=11"></script>
+<script src="newyear.js?v=12"></script>
 <script>
 const travelQuestions = [
  ['出发前夜','群里只定了目的地，明早就要出发。你先做什么？','把车次、住址和集合时间放进群公告','找一站没去过的小镇，提议顺路下车','问清谁容易晕车，给对方留个靠前的位置','拍下大家乱成一团的行李，做相册封面'],
@@ -171,7 +171,7 @@ for (const item of themes) {
  tile.querySelector('.paper-link').onclick = () => { selectTheme(item); openPaper(); };
  const sample=document.createElement('details');
  sample.className='samples';
- sample.innerHTML='<summary>先看一张动态样卡</summary><figure class="mini-card"><div class="sample-art"><img alt="" width="540" height="304"></div><figcaption><strong></strong><span></span></figcaption></figure>';
+ sample.innerHTML='<summary>先看一段场景动画</summary><figure class="mini-card"><div class="sample-art"><img alt="" width="540" height="304"></div><figcaption><strong></strong><span></span></figcaption></figure>';
  const sampleType=(item.cover+1)%item.roles.length;
  setupSample(sample,item,sampleType);
  tile.querySelector('.tile-body').append(sample);

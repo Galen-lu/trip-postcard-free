@@ -1,12 +1,12 @@
 function posterPath(stem, small=false) {
   if(stem==='spring-demo')return springPhoto('reunion',true);
-  return 'art/'+stem+(small?'-sm':'')+'.webp?v=8';
+  return 'art/'+stem+(small?'-sm':'')+'.webp?v=12';
 }
 function motionPath(stem) {
   if(stem==='spring-demo')return springPreviewURL();
-  return 'film/'+stem+'.mp4?v=11';
+  return 'film/'+stem+'.mp4?v=12';
 }
-function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=11';}
+function nativeSceneURL(stem){return 'film/'+stem+'.webp?v=12';}
 function motionVideo() {
   const v=document.createElement('video');
   v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.preload='none';
@@ -20,7 +20,7 @@ function releaseClip(host) {
   v.pause();v.removeAttribute('src');v.load();v.remove();host.classList.remove('clip-ready');
 }
 function syncClip(host) {
-  const active=motionOn && !document.hidden && host.dataset.active==='yes' && host.dataset.visible==='yes' && host.isConnected;
+  const active=motionOn && !document.hidden && !get('sceneDialog').hasAttribute('open') && host.dataset.active==='yes' && host.dataset.visible==='yes' && host.isConnected;
   if(!active){releaseClip(host);return;}
   if(host.querySelector('video'))return;
   const v=motionVideo();
@@ -111,7 +111,7 @@ function waitClip(video,onSlow) {
     if(video.networkState!==video.NETWORK_LOADING)video.load();
   });
 }
-let dialogRun=0,dialogBlob='';
+let dialogRun=0,dialogBlob='',dialogShot=null;
 function resetScenePhoto(){
   ++dialogRun;
   if(dialogBlob)URL.revokeObjectURL(dialogBlob);
@@ -121,7 +121,7 @@ function resetScenePhoto(){
   get('sceneSaveHint').hidden=true;get('scenePhotoMode').textContent='打开高清动图';get('bigScene').hidden=false;
 }
 async function showScenePhoto(){
-  const run=dialogRun, stem=matchedMoment.stem,button=get('scenePhotoMode'),big=get('bigScene');
+  const run=dialogRun,shot=dialogShot,stem=shot.stem,button=get('scenePhotoMode'),big=get('bigScene');
   let url=nativeSceneURL(stem);
   button.disabled=true;big.pause();
   try{
@@ -145,6 +145,6 @@ async function showScenePhoto(){
     const img=get('scenePhoto');img.src=url;await img.decode();
     if(run!==dialogRun)return;
     big.hidden=true;img.hidden=false;button.hidden=true;
-    get('sceneSaveHint').hidden=false;bindMediaSave(get('sceneDownload'),img,url,theme.label+'-'+matchedMoment.title+'.webp');
+    get('sceneSaveHint').hidden=false;bindMediaSave(get('sceneDownload'),img,url,shot.label+'-'+shot.title+'.webp');
   }catch{if(run===dialogRun){button.textContent='重试高清动图';button.disabled=false;}}
 }

@@ -132,7 +132,7 @@ async function openFilm(moment){
   }catch{if(run===filmRun){get('filmStatus').textContent='画面没载入，可以重试。';get('retryFilm').hidden=false;}}
 }
 function publishedCard(shot){
-  return 'cards/'+shot.stem+'-'+shot.type+'.gif?v=11';
+  return 'cards/'+shot.stem+'-'+shot.type+'.gif?v=12';
 }
 async function exportFilm(hd){
   if(!film||exporting)return;
@@ -179,7 +179,7 @@ async function exportFilm(hd){
 }
 
 function inviteURL(key,type) {
-  return 'https://galen-lu.github.io/trip-postcard-free/?v=11.1&play='+encodeURIComponent(key)+'#friend='+type;
+  return 'https://galen-lu.github.io/trip-postcard-free/?v=12&play='+encodeURIComponent(key)+'#friend='+type;
 }
 
 async function copyInvite() {
@@ -230,18 +230,32 @@ function initStories() {
   get('motionSwitch').onclick=()=>setMotion(!motionOn);
   get('gifMake').onclick=()=>exportFilm(false);
   get('hdMake').onclick=()=>exportFilm(true);
-  get('sceneView').onclick=()=>{
-    const shot=matchedMoment,video=get('bigScene');
+  function openScene(shot,sample){
+    const video=get('bigScene');
     resetScenePhoto();
+    dialogShot=shot;
     video.poster=posterPath(shot.stem);video.src=motionPath(shot.stem);
     get('bigCaption').textContent=shot.title+' · '+shot.caption;
+    get('playSampleTheme').hidden=!sample;
+    get('closeScene').textContent=sample?'回到首页':'回到结果';
     if(typeof get('sceneDialog').showModal==='function')get('sceneDialog').showModal();else get('sceneDialog').setAttribute('open','');
-    video.play().catch(()=>{});
-  };
+    refreshClips();
+    if(!sample||motionOn)video.play().catch(()=>{});
+  }
+  get('sceneView').onclick=()=>openScene(matchedMoment,false);
   get('scenePhotoMode').onclick=showScenePhoto;
-  function closeBig(){resetScenePhoto();const v=get('bigScene');v.pause();v.removeAttribute('src');v.load();}
+  function closeBig(){
+    resetScenePhoto();dialogShot=null;
+    const v=get('bigScene');v.pause();v.removeAttribute('src');v.load();
+    refreshClips();
+  }
   get('sceneDialog').addEventListener('close',closeBig);
   get('closeScene').onclick=()=>{const d=get('sceneDialog');if(typeof d.close==='function')d.close();else{d.removeAttribute('open');closeBig();}};
+  get('playSampleTheme').onclick=()=>{
+    const item=themes.find(t=>t.key===dialogShot.key);
+    get('closeScene').click();
+    chooseSection(sections.find(s=>s.items.includes(item.key)));selectTheme(item);start();
+  };
 
   get('filmPlay').onclick=()=>playing?pauseFilm():playFilm();
   get('inviteCopy').onclick=copyInvite;
@@ -249,6 +263,19 @@ function initStories() {
   get('duetRetry').onclick=()=>showDuet(theme,invitedBy.type,matchedMoment.type,filmRun);
   document.addEventListener('visibilitychange',()=>{if(document.hidden && playing) pauseFilm();refreshClips();});
   window.addEventListener('hashchange',openInvitation);openInvitation();
+  const params=new URLSearchParams(location.search),watch=params.get('watch');
+  if(watch&&!params.has('play')){
+    for(const item of themes){
+      const mix=momentLibrary[item.key].mix;
+      for(let type=0;type<4;type++){
+        const variants=type===mix.roles[0]?[0,1,2]:[0,1];
+        for(const variant of variants){
+          const shot=momentFor(item,{type,variant});
+          if(shot.stem===watch){openScene(shot,true);return;}
+        }
+      }
+    }
+  }
 }
 function openInvitation(){
   invitedBy=null;

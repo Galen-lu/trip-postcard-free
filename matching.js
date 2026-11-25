@@ -1,4 +1,4 @@
-// Each role has two photographed moments. Negative cues support the first
+// Each role has two animated scenes. Negative cues support the first
 // moment and positive cues support the second. Positions follow the ten
 // situations in the theme, so changing a question also calls for reviewing its cue.
 function pair(firstTitle,firstCaption,secondTitle,secondCaption,cues){
